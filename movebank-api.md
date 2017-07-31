@@ -367,13 +367,4 @@ As shown here, the specifications provided in the examples can be combined to fu
 `https://www.movebank.org/movebank/service/public/json?study_id=<study id>&individual_local_identifiers[]=<animal ID 1>&individual_local_identifiers[]=<animal ID 2 (optional)>&max_events_per_individual=<maximum number of records to access (optional)>&timestamp_start=<timestamp in milliseconds since 1/1/1970 (optional)>&timestamp_end=<timestamp in milliseconds since 1/1/1970 (optional)>&sensor_type=<sensor type>&attributes=<attributes to display in results (optional)>`
 
 ### Displaying data using Google Maps
-The JSON/JavaScript requests were designed primarily to allow users to access and display mapped Movebank data on external web pages using the Google Maps API. The following are examples of map interfaces that pull data from Movebank with JSON requests as described above.
-
-#### Example 1: Tracks with calendar (public data)
-Sample maps are at ospreytrax.org. This map displays tracks of one or more individuals with options for users to view the tracks in time: click anywhere along a track to see the time and coordinates of the nearest recorded location, drag along a track to see where all the animals were at the same time, or select a date from the calendar at the top to see the recorded locations closest to that time. Sample code is available upon request.
-
-#### Example 2: Tracks with calendar (private data)
-This map looks just like the one in Example 1, but the code uses PHP to provide credentials to obtain and display private data. Sample code is available upon request.
-
-#### Example 3: Tracks with points and density maps (public data)
-You can see [an example of this script](https://www.movebank.org/node/6856). The map displays tracks of several individuals with options for users to view track lines, points, or a density map. When a point on a track is selected, a popup appears giving the animal's name, time and location, and can optionally include an image or link to additional information. To speed loading time for this high-resolution dataset, a limited number of most recent locations are displayed, and older locations can be shown by selecting a calendar date. Sample code is available upon request.
+The JSON/JavaScript requests were designed primarily to allow users to access and display mapped Movebank data on external web pages using the Google Maps API. See [Movebank Map Demo](https://github.com/movebank/movebank-map-demo) for example code for maps that pull data from Movebank with JSON requests as described above.
