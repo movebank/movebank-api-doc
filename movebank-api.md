@@ -1,7 +1,6 @@
 Movebank REST API: Description of download interface to build calls to the Movebank database
 
 Contents
-========
 - [Introduction](#introduction)
 - [Security, data access and authentication](#security-data-access-and-authentication)
 - [Accessing the database using HTTP/CSV requests](#accessing-the-database-using-httpcsv-requests)
@@ -35,11 +34,9 @@ Contents
 	- [Displaying data using Google Maps](#displaying-data-using-google-maps)
 
 ## Introduction
-===============
 Movebank's REST API allows access to pull data from Movebank using HTTP or JSON requests made in a web browser or through external programs such as R. Below are details, example requests, and relevant information about security and access controls.
 
 ## Security, data access and authentication
-===========================================
 Data access is defined by users for each study in Movebank following [Movebank's permissions options](https://www.movebank.org/node/43). Therefore if no username and password are provided, results will be restricted to data that users have made publicly available. If a username and password are provided, results will be restricted to data that the user has access to. To access tracking actual data, including for visualization on external websites, the username (or the public) needs permission to download data.
 
 In addition to access permissions, for data that are made available to others, [data managers for each study in Movebank specify use conditions in the "License Terms" in the Study Details](https://www.movebank.org/node/11). If no conditions are specified, [the General Movebank Terms of Use](https://www.movebank.org/node/1934) apply.
@@ -49,7 +46,6 @@ To ensure that users are aware of the license terms for each study, we require t
 - A user can log on to Movebank and accept the terms of use for the study/ies they want to access prior to attempting to access from an external program.
 
 ## Accessing the database using HTTP/CSV requests
-=====================================================
 The following are examples of how to access information from the Movebank database with HTTP requests. After providing a valid username and password, these calls will return CSV files containing the requested information. Note that the results will be based on the information available to the user as defined by access permissions (see above). For more information about the data model and attributes contained in the database, see Kranstauber et al. (2011) and [the Movebank Attribute Dictionary](https://www.movebank.org/node/2381).
 
 ### Get a list of attribute names
@@ -296,7 +292,6 @@ If you request data that you do not have permission to see, you will get a messa
 The HTTP/CSV requests can be used to access Movebank data from R. [The R package `move`](http://cran.r-project.org/web/packages/move/index.html) provides flexible options for browsing and visualizing data from Movebank in R. In addition, [the package source files](https://r-forge.r-project.org/scm/viewvc.php/pkg/move/R/WebImport.R?view=markup&root=move) provide information that can be used to access Movebank from R without the package.
 
 ## Accessing the database using JSON/JavaScript requests
-============================================================
 The following are examples for how to access Movebank data using JSON requests. This is currently designed primarily to allow tracking data to be displayed on external maps using the Google Maps API (see below). You will need the relevant study ID number and sensor type description in the database to access data (see above).
 
 ### Get public or private data
