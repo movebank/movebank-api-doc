@@ -1,45 +1,42 @@
 Movebank REST API: Description of download interface to build calls to the Movebank database
 
 Contents
-- Introduction
-- Security, data access and authentication
-- Accessing the database using HTTP/CSV requests
-	- Get a list of attribute names
-	- Get descriptions of entities in the database
+- 1.0 Introduction
+- 2.0 Security, data access and authentication
+- 3.0 Accessing the database using HTTP/CSV requests
+	- 3.1 Get a list of attribute names
+	- 3.2 Get descriptions of entities in the database
 		- Get a list of sensor types
 		- Get a list of studies
 		- Get a list of studies a user is a data manager for
-	- Get descriptions of entities in a study
+	- 3.3 Get descriptions of entities in a study
 		- Get a summary of information about the study
 		- Get tag reference information from the study
 		- Get animal reference information from the study
 		- Get deployment reference information from the study
-	- Get event data from the study
+	- 3.4 Get event data from the study
 		- Get event data with all event-level attributes
 		- Get event data with selected additional event-level attributes
 		- Get event data for a single sensor type
 		- Get event data for an individual animal
 		- Get event data for a specified time period
-	- Other messages you might receive
-	- Accessing the database from R
+	- 3.5 Other messages you might receive
+	- 3.6 Accessing the database from R
 
-- Accessing the database using JSON/JavaScript requests
-	- Get public or private data
-	- Get event data from the study
+- 4.0 Accessing the database using JSON/JavaScript requests
+	- 4.1 Get public or private data
+	- 4.2 Get event data from the study
 		- Get event data for multiple individuals
 		- Get event data for a specified number of events
 		- Get event data for a specified time period
 		- Get event data with additional event-level attributes
 		- Get event data with all of the specifications described above
-	- Displaying data using Google Maps
-		- Example 1: Tracks with calendar (public data)
-		- Example 2: Tracks with calendar (private data)
-		- Example 3: Tracks with points and density maps (public data)
+	- 4.3 Displaying data using Google Maps
 
-## Introduction
+## 1.0 Introduction
 Movebank's REST API allows access to pull data from Movebank using HTTP or JSON requests made in a web browser or through external programs such as R. Below are details, example requests, and relevant information about security and access controls.
 
-## Security, data access and authentication
+## 2.0 Security, data access and authentication
 Data access is defined by users for each study in Movebank following [Movebank's permissions options](https://www.movebank.org/node/43). Therefore if no username and password are provided, results will be restricted to data that users have made publicly available. If a username and password are provided, results will be restricted to data that the user has access to. To access tracking actual data, including for visualization on external websites, the username (or the public) needs permission to download data.
 
 In addition to access permissions, for data that are made available to others, [data managers for each study in Movebank specify use conditions in the "License Terms" in the Study Details](https://www.movebank.org/node/11). If no conditions are specified, [the General Movebank Terms of Use](https://www.movebank.org/node/1934) apply.
@@ -48,18 +45,18 @@ To ensure that users are aware of the license terms for each study, we require t
 - Data managers can disable the requirement that users accept terms of use by unchecking the "Prompt users to accept license terms" box in [the permissions settings for a study](https://www.movebank.org/node/43).
 - A user can log on to Movebank and accept the terms of use for the study/ies they want to access prior to attempting to access from an external program.
 
-## Accessing the database using HTTP/CSV requests
+## 3.0 Accessing the database using HTTP/CSV requests
 The following are examples of how to access information from the Movebank database with HTTP requests. After providing a valid username and password, these calls will return CSV files containing the requested information. Note that the results will be based on the information available to the user as defined by access permissions (see above). For more information about the data model and attributes contained in the database, see Kranstauber et al. (2011) and [the Movebank Attribute Dictionary](https://www.movebank.org/node/2381).
 
-### 1. Get a list of attribute names
+### 3.1 Get a list of attribute names
 `https://www.movebank.org/movebank/service/direct-read?attributes`
 
 This will open a list of available attribute names by entity type that can be used to further specify the example queries below.
 
-### 2. Get descriptions of entities in the database
+### 3.2 Get descriptions of entities in the database
 You may want to query general information about what is contained in the database. You can obtain information about the following entity types in the database prior to specifying a specific study: study, tag_type, taxon. Note that the taxonomy in Movebank comes from [the Integrated Taxonomic Information System](https://www.itis.gov/) (ITIS).
 
-#### 2.1 Get a list of sensor types
+#### Get a list of sensor types
 `https://www.movebank.org/movebank/service/direct-read?entity_type=tag_type`
 
 
@@ -82,7 +79,7 @@ Result
 
 From this you can see that the sensor type ID for GPS data is 653 and that the “accessory measurements” sensor does not include location information.
 
-#### 2.2 Get a list of studies
+#### Get a list of studies
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study`
 
 Result
@@ -92,15 +89,15 @@ Result
 
 These results provide the study name (`study`), the study ID (`id`), user-provided study details, and information about your username's access permissions. To determine your access rights, filter the list using `i_am_owner`, `i_can_see_data` and/or `there_are_data_which_i_cannot_see`. Remember that you may have permission to see only the study details, view some or all tracks but not download data, or view and download some or all data. Also, there are studies that you do not have permission to see at all—these studies will not be included in the list. Please ignore the columns with summary statistics about the studies (`number_of_deployments`, `number_of_events`, `number_of_individuals`, `number_of_tags`, `timestamp_end`, `timestamp_start`)—these columns are now obsolete.
 
-#### 2.3 Get a list of studies a user is a data manager for
+#### Get a list of studies a user is a data manager for
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_am_owner=true`
 
 Results will be the same as in the previous example, but filtered for only the studies for which `i_am_owner` contains `TRUE`.
 
-### 3. Get descriptions of entities in a study
+### 3.3 Get descriptions of entities in a study
 When you have a certain study of interest, you can access information contained in that study using the study’s Movebank ID (available in [the Study Details](https://www.movebank.org/node/1942#study_details)). You can obtain information for the following entity types: `study`, `individual`, `tag`, `deployment`, and `event`. The event entities contain actual sensor measurements, while the deployment, individual, and tag entities contain descriptive information about the animals, tags, and deployments (i.e. of tags on animals) in the study. In Movebank we refer to the latter information as "[reference data](https://www.movebank.org/2381#metadata)". For the examples that follow we will use the study "Galapagos Albatrosses" (study ID 2911040) which is fully available to the public.
 
-#### 3.1 Get a summary of information about the study
+#### Get a summary of information about the study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_id=2911040`
 
 Result
@@ -112,7 +109,7 @@ Result
 ```
 
 
-#### 3.2 Get tag reference information from the study
+#### Get tag reference information from the study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=tag&study_id=2911040`
 
 Result
@@ -129,7 +126,7 @@ Result
 
 Attributes listed in the file include tag descriptors currently in the database. Those that have not been provided by the data owner will be blank. The attribute "local_identifier" contains the user-provided tag IDs (which can be changed by the data owner), and the attribute "id" contains internal identifiers automatically created in the database.
 
-#### 3.3 Get animal reference information from the study
+#### Get animal reference information from the study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=individual&study_id=2911040`
 
 Result
@@ -144,7 +141,7 @@ Result
 |Nest stage: egg |               |                   |                    | 2911078|                 |3606-30668       |        |    |                     |
 ```
 		
-#### 3.4 Get deployment reference information from the study
+#### Get deployment reference information from the study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=deployment&study_id=2911040`
 
 Result
@@ -159,7 +156,7 @@ Result
 |adult             |            |                              |tape            |                      |not used in analysis |                         |                    |                     |                  |                     |              -1.58|              -81.15|                 |                    |                        |                    |GPS locations recorded every 90 minutes |                       |                           |                           |                               |                     | 2911178|159-unbanded-159 |                           |                      |none              |                   |Isla de la Plata |other-wireless     |
 ```
 
-### 4. Get event data from the study
+### 3.4 Get event data from the study
 By default, requests for event data return the event-level dataset (the “tracking data” for location sensors) limited to the variables timestamp, location_lat, location_long, individual_id, tag_id (using internal Movebank identifiers), and including locations not associated with an animal (i.e. there is now `individual_id`) and locations marked as outliers.
 
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040`
@@ -176,16 +173,16 @@ Result
 |2008-05-31 19:30:18.998 |    -1.372912|     -89.74013|       2911059| 2911107|
 ```
 
-However, datasets often contain additional variables, and non-location sensors (e.g. geolocators and accelerometers) do not contain location coordinates. In addition, if any filtering has been done on the study (e.g. to flag outliers) it might be important to receive the 'visible' and outlier attributes.
+However, datasets often contain additional variables, and non-location sensors (e.g. geolocators and accelerometers) do not contain location coordinates. In addition, if any filtering has been done on the study (e.g. to flag outliers) it might be important to receive the 'visible' and outlier attributes. For these reasons, you might want to include additional variables in your request.
 
-#### 4.1 Get event data with all event-level attributes
+#### Get event data with all event-level attributes
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&attributes=all`
 
 Result
 
 ```
 |individual_id|deployment_id| tag_id|study_id|sensor_type_id|eobs_battery_voltage|eobs_fix_battery_voltage|eobs_horizontal_accuracy_estimate|eobs_key_bin_checksum|eobs_speed_accuracy_estimate|eobs_start_timestamp   |eobs_status|eobs_temperature|eobs_type_of_fix|eobs_used_time_to_get_fix|ground_speed|heading|height_above_ellipsoid|location_lat|location_long|timestamp              |visible|event_id|
-|:------------|------------:|------:|-------:|-------------:|-------------------:|-----------------------:|--------------------------------:|--------------------:|---------------------------:|----------------------:|----------:|---------------:|---------------:|------------------------:|-----------:|------:|---------------------:|-----------:|------------:|----------------------:|------:|-------:|
+|------------:|------------:|------:|-------:|-------------:|-------------------:|-----------------------:|--------------------------------:|--------------------:|---------------------------:|:----------------------|:----------|---------------:|---------------:|------------------------:|-----------:|------:|---------------------:|-----------:|------------:|:----------------------|:------|-------:|
 |      2911059|      9472219|2911107| 2911040|           653|                3686|                    3437|                            12.03|           2396171168|                        0.67|2008-05-31 13:28:48.000|"A"        |              12|               3|                       74|        0.01|  21.63|                  16.5|   -1.372641|   -89.740214|2008-05-31 13:30:02.001|true   |28192174|
 |      2911059|      9472219|2911107| 2911040|           653|                3701|                    3452|                             2.82|           2700991056|                        0.24|2008-05-31 14:59:59.000|"A"        |              19|               3|                       45|         0.0|  95.68|                  12.6|  -1.3728941|  -89.7401542|2008-05-31 15:00:44.998|true   |28192175|
 |      2911059|      9472219|2911107| 2911040|           653|                3701|                    3482|                             4.35|            540734184|                        2.57|2008-05-31 16:30:00.000|"A"        |              24|               3|                       39|        0.11|  13.76|                  17.4|  -1.3728809|  -89.7401401|2008-05-31 16:30:39.998|true   |28192176|
@@ -195,7 +192,7 @@ Result
 
 This could provide more information (and data volume) than is needed for a given purpose, so it is also possible to specify which variables to include.
 
-#### 4.2 Get event data with selected additional event-level attributes
+#### Get event data with selected additional event-level attributes
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&attributes=individual_id,timestamp,location_long,location_lat,visible`
 
 Result
@@ -212,7 +209,7 @@ Result
 
 Here you can specify the order and inclusion of specific event-level attributes. See “get a list of attribute names” above for available attributes. Note that filtering for some attributes may not work. Please contact support@movebank.org if you find an attribute that is not included in results.
 
-#### 4.1 Get event data for a single sensor type
+#### Get event data for a single sensor type
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&sensor_type_id=653`
 
 Result
@@ -229,7 +226,7 @@ Result
 
 If multiple sensor types are used in a study, use this to access event-level data for a specific sensor. See “get a list of sensor types” above for the `sensor_type_id` for each sensor type.
 
-#### 4.2 Get event data for an individual animal
+#### Get event data for an individual animal
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&individual_id=2911059`
 
 Result
@@ -246,7 +243,7 @@ Result
 
 The individual_id refers to the internal Movebank identifier for each animal in Movebank (which does not change if the user changes the Animal ID). You can view these identifiers in [the Event Editor](https://www.movebank.org/node/42) or contact support@movebank.org for help.
 
-#### 4.3 Get event data for a specified time period
+#### Get event data for a specified time period
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&timestamp_start=20080604133045000&timestamp_end=20080604133046000`
 
 Result
@@ -266,7 +263,7 @@ Result
 
 Timestamps should be provided in the format `yyyyMMddHHmmssSSS` (see [list of letter meanings](http://fmpp.sourceforge.net/datetimepattern.html)).
 
-### Other messages you might receive
+### 3.5 Other messages you might receive
 It may happen that you see the license terms instead of getting the data you have requested. In this case you may get a result like
 
 ```html
@@ -291,23 +288,18 @@ If you request data that you do not have permission to see, you will get a messa
 <p>No data available.</p><p>Please contact the data owner for permission to access data.</p>
 ```
 
-### Accessing the database from R
+### 3.6 Accessing the database from R
 The HTTP/CSV requests can be used to access Movebank data from R. [The R package `move`](http://cran.r-project.org/web/packages/move/index.html) provides flexible options for browsing and visualizing data from Movebank in R. In addition, [the package source files](https://r-forge.r-project.org/scm/viewvc.php/pkg/move/R/WebImport.R?view=markup&root=move) provide information that can be used to access Movebank from R without the package.
 
-## Accessing the database using JSON/JavaScript requests
+## 4.0 Accessing the database using JSON/JavaScript requests
 The following are examples for how to access Movebank data using JSON requests. This is currently designed primarily to allow tracking data to be displayed on external maps using the Google Maps API (see below). You will need the relevant study ID number and sensor type description in the database to access data (see above).
 
-### Get public or private data
+### 4.1 Get public or private data
 In the examples below, we use URLs that do not include usernames or passwords. In order to access data from a study without providing login information, the study must be completely accessible to the public as described above. Consider [making data publicly available](https://www.movebank.org/node/43#public_full_access) so that data can be accessed without providing any login information. Remember that making data available does not give others permission to use your data, and that license terms still apply. If data are public, the http request should begin with `https://www.movebank.org/movebank/service/public/json?`, for example
 
 `https://www.movebank.org/movebank/service/public/json?&study_id=2911040&individual_local_identifiers[]=4262-84830876&max_events_per_individual=5&sensor_type=gps`
 
-Result
-
-```
-{"individuals":[{"study_id":2911040,"individual_local_identifier":"4262-84830876","individual_taxon_canonical_name":"Phoebastria irrorata","sensor_type_id":653,"locations":[{"timestamp":1215324043998,"location_long":-89.7400432,"location_lat":-1.3725996},{"timestamp":1215329423999,"location_long":-89.7400444,"location_lat":-1.3725973},{"timestamp":1215334824998,"location_long":-89.740062,"location_lat":-1.3725946},{"timestamp":1215340256001,"location_long":-89.7400632,"location_lat":-1.3726035},{"timestamp":1215345626998,"location_long":-89.7400716,"location_lat":-1.3726746}]}]}
 If data are not public, the http request should begin with `https://www.movebank.org/movebank/service/json-auth?`, for example
-```
 
 `https://www.movebank.org/movebank/service/json-auth?&study_id=2911040&individual_local_identifiers[]=4262-84830876&max_events_per_individual=5&sensor_type=gps`
 
@@ -327,7 +319,9 @@ $context = stream_context_create(array(
 ));
 ```
 
-### Get event data from the study
+For non-public data, use the example above to modify your requests that use the examples below.
+
+### 4.2 Get event data from the study
 `https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers[]=4262-84830876&sensor_type=gps`
 
 Result
@@ -342,7 +336,8 @@ Result
 ...
 ```
 
-This example contains the minimum information needed to obtain data: a study ID, an animal ID (here the user-provided name), and a sensor type. You can make several additional variations to this, described below. The timestamps are provided in milliseconds since `1970-01-01 UTC`, and coordinates are in WGS84.
+This example contains the minimum information needed to obtain data: a study ID, an animal ID (here the user-provided name),
+and a sensor type. You can make several additional variations to this, described below. The timestamps are provided in milliseconds since `1970-01-01 UTC`, and coordinates are in WGS84.
 
 #### Get event data for multiple individuals
 `https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers[]=4262-84830876&individual_local_identifiers[]=1163-1163&individual_local_identifiers[]=2131-2131&sensor_type=gps`
@@ -390,5 +385,5 @@ As shown here, the specifications provided in the examples can be combined to fu
 
 `https://www.movebank.org/movebank/service/public/json?study_id=<study id>&individual_local_identifiers[]=<animal ID 1>&individual_local_identifiers[]=<animal ID 2 (optional)>&max_events_per_individual=<maximum number of records to access (optional)>&timestamp_start=<timestamp in milliseconds since 1/1/1970 (optional)>&timestamp_end=<timestamp in milliseconds since 1/1/1970 (optional)>&sensor_type=<sensor type>&attributes=<attributes to display in results (optional)>`
 
-### Displaying data using Google Maps
+### 4.3 Displaying data using Google Maps
 The JSON/JavaScript requests were designed primarily to allow users to access and display mapped Movebank data on external web pages using the Google Maps API. See [Movebank Map Demo](https://github.com/movebank/movebank-map-demo) for example code for maps that pull data from Movebank with JSON requests as described above.
