@@ -8,10 +8,10 @@ Contents
 	- [Get descriptions of entities in the database](#get-descriptions-of-entities-in-the-database)
 		- [Get a list of sensor types](#get-a-list-of-sensor-types)
 		- [Get a list of studies](#get-a-list-of-studies)
-		- [Get a list of studies a user is a data manager for](#get-a-list-of-studies-a-user-is-data-manager-for)
+		- [Get a list of studies a user is data manager for](#get-a-list-of-studies-a-user-is-data-manager-for)
 	- [Get descriptions of entities in a study](#get-descriptions-of-entities-in-a-study)
 		- [Get a description about a study](#get-a-description-about-a-study)
-		- [Get information about tags in a study](#get-tag-reference-information-from-the)
+		- [Get information about tags in a study](#get-information-about-tags-in-a-study)
 		- [Get information about animals in a study](#get-information-about-animals-in-a-study)
 		- [Get information about deployments in a study](#get-information-about-deployments-in-a-study)
 	- [Get event data from a study](#get-event-data-from-a-study)
@@ -89,7 +89,7 @@ Result
 
 These results provide the study name (`study`), the study ID (`id`), user-provided study details, and information about your username's access permissions. To determine your access rights, filter the list using `i_am_owner`, `i_can_see_data` and/or `there_are_data_which_i_cannot_see`. Remember that you may have permission to see only the study details, view some or all tracks but not download data, or view and download some or all data. Also, there are studies that you do not have permission to see at all—these studies will not be included in the list. Please ignore the columns with summary statistics about the studies (`number_of_deployments`, `number_of_events`, `number_of_individuals`, `number_of_tags`, `timestamp_end`, `timestamp_start`)—these columns are now obsolete.
 
-#### Get a list of studies a user is a data manager for
+#### Get a list of studies a user is data manager for
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_am_owner=true`
 
 Results will be the same as in the previous example, but filtered for only the studies for which `i_am_owner` contains `TRUE`.
