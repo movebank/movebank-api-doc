@@ -48,7 +48,7 @@ To ensure that users are aware of the license terms for each study, users are re
 - Read and accept license terms using the API, as in the following example.
 
 ### Read and accept license terms using curl
-This example uses curl commands in Terminal on a Mac to accept license terms and access data from the published study [(EBD) Lesser Kestrels](https://www.movebank.org/panel_embedded_movebank_webapp?gwt_fragment=page=studies,path=study16615296) [Hernández-Pliego et al. 2015](https://doi.org/10.5441/001/1.sj8t3r11)
+This example uses curl commands in Terminal on a Mac to accept license terms and access data from the published study [(EBD) Lesser Kestrels](https://www.movebank.org/panel_embedded_movebank_webapp?gwt_fragment=page=studies,path=study16615296) ([Hernández-Pliego et al. 2015](https://doi.org/10.5441/001/1.sj8t3r11)).
 1. Submit an http request as described below for a study and user requiring license terms be accepted, saving the terms as license_terms.txt (in html, search for "License Terms:") and specifying cookies to maintain a session in consecutive calls:
 `curl -v -u username:password -c cookies.txt -o license_terms.txt "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=16615296"`
 
@@ -108,7 +108,7 @@ These results provide the study name (`study`), the study ID (`id`), user-provid
 Results will be the same as in the previous example, but filtered for only the studies for which `i_am_owner` contains `TRUE`.
 
 ### Get descriptions of entities in a study
-When you have a certain study of interest, you can access information contained in that study using the study’s Movebank ID (available in [the Study Details](https://www.movebank.org/node/1942#study_details)). You can obtain information for the following entity types: `study`, `individual`, `tag`, `deployment`, and `event`. The event entities contain actual sensor measurements, while the deployment, individual, and tag entities contain descriptive information about the animals, tags, and deployments (i.e. of tags on animals) in the study. In Movebank we refer to the latter information as "[reference data](https://www.movebank.org/2381#metadata)". For the examples that follow we will use the study [Galapagos Albatrosses](https://www.movebank.org/panel_embedded_movebank_webapp?gwt_fragment=page=studies,path=study2911040) (study ID 2911040; [Cruz et al. 2013](https://doi.org/10.5441/001/1.3hp3s250) which is fully available to the public.
+When you have a certain study of interest, you can access information contained in that study using the study’s Movebank ID (available in [the Study Details](https://www.movebank.org/node/1942#study_details)). You can obtain information for the following entity types: `study`, `individual`, `tag`, `deployment`, and `event`. The event entities contain actual sensor measurements, while the deployment, individual, and tag entities contain descriptive information about the animals, tags, and deployments (i.e. of tags on animals) in the study. In Movebank we refer to the latter information as "[reference data](https://www.movebank.org/2381#metadata)". For the examples that follow we will use the study [Galapagos Albatrosses](https://www.movebank.org/panel_embedded_movebank_webapp?gwt_fragment=page=studies,path=study2911040) (study ID 2911040; [Cruz et al. 2013](https://doi.org/10.5441/001/1.3hp3s250)) which is fully available to the public.
 
 #### Get a description about a study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_id=2911040`
@@ -195,12 +195,12 @@ Result
 
 ```
 |individual_id|deployment_id| tag_id|study_id|sensor_type_id|individual_local_identifier|tag_local_identifier|eobs_battery_voltage|eobs_fix_battery_voltage|eobs_horizontal_accuracy_estimate|eobs_key_bin_checksum|eobs_speed_accuracy_estimate|eobs_start_timestamp   |eobs_status|eobs_temperature|eobs_type_of_fix|eobs_used_time_to_get_fix|ground_speed|heading|height_above_ellipsoid|location_lat|location_long|timestamp              |visible|event_id|
-|------------:|------------:|------:|-------:|-------------:|--------------------------:|-------------------:|-------------------:|-----------------------:|--------------------------------:|--------------------:|---------------------------:|:----------------------|:----------|---------------:|---------------:|------------------------:|-----------:|------:|---------------------:|-----------:|------------:|:----------------------|:------|-------:|
-|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"           :|"131"              :|                3686|                    3437|                            12.03|           2396171168|                        0.67|2008-05-31 13:28:48.000|"A"        |              12|               3|                       74|        0.01|  21.63|                  16.5|   -1.372641|   -89.740214|2008-05-31 13:30:02.001|true   |28192174|
-|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"           :|"131"              :|                3701|                    3452|                             2.82|           2700991056|                        0.24|2008-05-31 14:59:59.000|"A"        |              19|               3|                       45|         0.0|  95.68|                  12.6|  -1.3728941|  -89.7401542|2008-05-31 15:00:44.998|true   |28192175|
-|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"           :|"131"              :|                3701|                    3482|                             4.35|            540734184|                        2.57|2008-05-31 16:30:00.000|"A"        |              24|               3|                       39|        0.11|  13.76|                  17.4|  -1.3728809|  -89.7401401|2008-05-31 16:30:39.998|true   |28192176|
-|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"           :|"131"              :|                3691|                    3476|                             2.82|           2845350485|                        2.61|2008-05-31 18:00:00.000|"A"        |              18|               3|                       49|         0.2|   9.83|                  24.8|  -1.3728911|  -89.7401596|2008-05-31 18:00:49.998|true   |28192177|
-|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"           :|"131"              :|                3691|                    3541|                             4.61|           1429925913|                         2.7|2008-05-31 19:30:00.000|"A"        |              22|               3|                       18|        0.24|  37.36|                  19.0|  -1.3729121|   -89.740127|2008-05-31 19:30:18.998|true   |28192178|
+|------------:|------------:|------:|-------:|-------------:|:--------------------------|:-------------------|-------------------:|-----------------------:|--------------------------------:|--------------------:|---------------------------:|:----------------------|:----------|---------------:|---------------:|------------------------:|-----------:|------:|---------------------:|-----------:|------------:|:----------------------|:------|-------:|
+|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"            |"131"               |                3686|                    3437|                            12.03|           2396171168|                        0.67|2008-05-31 13:28:48.000|"A"        |              12|               3|                       74|        0.01|  21.63|                  16.5|   -1.372641|   -89.740214|2008-05-31 13:30:02.001|true   |28192174|
+|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"            |"131"               |                3701|                    3452|                             2.82|           2700991056|                        0.24|2008-05-31 14:59:59.000|"A"        |              19|               3|                       45|         0.0|  95.68|                  12.6|  -1.3728941|  -89.7401542|2008-05-31 15:00:44.998|true   |28192175|
+|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"            |"131"               |                3701|                    3482|                             4.35|            540734184|                        2.57|2008-05-31 16:30:00.000|"A"        |              24|               3|                       39|        0.11|  13.76|                  17.4|  -1.3728809|  -89.7401401|2008-05-31 16:30:39.998|true   |28192176|
+|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"            |"131"               |                3691|                    3476|                             2.82|           2845350485|                        2.61|2008-05-31 18:00:00.000|"A"        |              18|               3|                       49|         0.2|   9.83|                  24.8|  -1.3728911|  -89.7401596|2008-05-31 18:00:49.998|true   |28192177|
+|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"            |"131"               |                3691|                    3541|                             4.61|           1429925913|                         2.7|2008-05-31 19:30:00.000|"A"        |              22|               3|                       18|        0.24|  37.36|                  19.0|  -1.3729121|   -89.740127|2008-05-31 19:30:18.998|true   |28192178|
 ```
 
 This could provide more information (and data volume) than necessary, so it is also possible to specify which attributes to include and in what order. The following example is a good minimum default set for location events. See “get a list of attribute names” above for available attributes. Note that filtering for some attributes may not work. Please contact support@movebank.org if you find an attribute that is not included in results.
@@ -211,13 +211,13 @@ This could provide more information (and data volume) than necessary, so it is a
 Result
 
 ```
-| individual_local_identifier|timestamp               | location_long| location_lat|visible |
-|---------------------------:|:-----------------------|-------------:|------------:|:-------|
-|"4264-84830852"             |2008-05-31 13:30:02.001 |     -89.74021|    -1.372641|true    |
-|"4264-84830852"             |2008-05-31 15:00:44.998 |     -89.74015|    -1.372894|true    |
-|"4264-84830852"             |2008-05-31 16:30:39.998 |     -89.74014|    -1.372881|true    |
-|"4264-84830852"             |2008-05-31 18:00:49.998 |     -89.74016|    -1.372891|true    |
-|"4264-84830852"             |2008-05-31 19:30:18.998 |     -89.74013|    -1.372912|true    |
+|individual_local_identifier|tag_local_identifier|timestamp               |location_long|location_lat|visible|
+|:--------------------------|:-------------------|-----------------------:|------------:|-----------:|:------|
+|"4264-84830852"            |"131"               |2008-05-31 13:30:02.001 |    -89.74021|   -1.372641|true   |
+|"4264-84830852"            |"131"               |2008-05-31 15:00:44.998 |    -89.74015|   -1.372894|true   |
+|"4264-84830852"            |"131"               |2008-05-31 16:30:39.998 |    -89.74014|   -1.372881|true   |
+|"4264-84830852"            |"131"               |2008-05-31 18:00:49.998 |    -89.74016|   -1.372891|true   |
+|"4264-84830852"            |"131"               |2008-05-31 19:30:18.998 |    -89.74013|   -1.372912|true   |
 ```
 
 #### Get event data for a single sensor type
@@ -252,7 +252,7 @@ Result
 |2008-05-31 19:30:18.998 |    -1.372912|     -89.74013|       2911059| 2911107|
 ```
 
-The individual_id refers to the internal Movebank identifier for each animal in Movebank (which does not change if the user changes the Animal ID).
+The individual_id refers to the internal Movebank identifier for each animal in Movebank (which does not change if the user changes the Animal ID). Include individual_local_identifier for the user-defined animal ID.
 
 #### Get event data for a specified time period
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&timestamp_start=20080604133045000&timestamp_end=20080604133046000`
