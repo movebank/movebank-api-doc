@@ -3,6 +3,7 @@ Movebank REST API: Description of download interface to build calls to the Moveb
 Contents
 - [Introduction](#introduction)
 - [Security, data access and authentication](#security-data-access-and-authentication)
+    - [Read and accept license terms using curl](#read-and-accept-license-terms-using-curl)
 - [Accessing the database using HTTP/CSV requests](#accessing-the-database-using-httpcsv-requests)
 	- [Get a list of attribute names](#get-a-list-of-attribute-names)
 	- [Get descriptions of entities in the database](#get-descriptions-of-entities-in-the-database)
@@ -37,16 +38,28 @@ Contents
 Movebank's REST API allows access to pull data from Movebank using HTTP or JSON requests made in a web browser or through external programs such as R. Below are details, example requests, and relevant information about security and access controls.
 
 ## Security, data access and authentication
-Data access is defined by users for each study in Movebank following [Movebank's permissions options](https://www.movebank.org/node/43). Therefore if no username and password are provided, results will be restricted to data that users have made publicly available. If a username and password are provided, results will be restricted to data that the user has access to. To access tracking actual data, including for visualization on external websites, the username (or the public) needs permission to download data.
+Data access is defined by users for each study in Movebank following [Movebank's permissions options](https://www.movebank.org/node/43). If no username and password are provided, results will be restricted to data that users have made publicly available. If a username and password are provided, results will be restricted to data that the user has access to. To access tracking actual data, including for visualization on external websites, the username (or the public) needs permission to download data.
 
-In addition to access permissions, for data that are made available to others, [data managers for each study in Movebank specify use conditions in the "License Terms" in the Study Details](https://www.movebank.org/node/11). If no conditions are specified, [the General Movebank Terms of Use](https://www.movebank.org/node/1934) apply.
+In addition to access permissions, for data that are made available to others, data managers for each study in Movebank specify use conditions in the "License Terms" in the [Study Details](https://www.movebank.org/node/1942#study_details). If no conditions are specified, the [General Movebank Terms of Use](https://www.movebank.org/node/1934) apply.
 
-To ensure that users are aware of the license terms for each study, we require that a user read and accept these terms of use prior to download once for each study accessed. Once a user has accepted the terms of use for a study, they will not be required to accept them again unless the study owner changes the terms of use. These requirements can cause problems with accessing data from external programs or URLs. There are a few ways to resolve these:
-- Data managers can disable the requirement that users accept terms of use by unchecking the "Prompt users to accept license terms" box in [the permissions settings for a study](https://www.movebank.org/node/43).
-- A user can log on to Movebank and accept the terms of use for the study/ies they want to access prior to attempting to access from an external program.
+To ensure that users are aware of the license terms for each study, users are required to read and accept these terms of use prior to first downloading the data for a study. Once a user has accepted the terms of use for a study, they will not be required to accept them again unless the study owner changes the terms. These requirements can cause confusion when accessing data using the API. Options for accepting license terms include
+- A user can log in to Movebank and accept the license terms for the study by initiating a [data download](https://www.movebank.org/node/54#download_movebank_data) prior to attempting to access through the API.
+- Data managers can disable the requirement that users accept terms of use by unchecking the "Prompt users to accept license terms" box in the [permissions settings](https://www.movebank.org/node/43) for the study.
+- Read and accept license terms using the API, as in the following example.
+
+### Read and accept license terms using curl
+This example uses curl commands in Terminal on a Mac to accept license terms and access data from the published study [(EBD) Lesser Kestrels](https://www.movebank.org/panel_embedded_movebank_webapp?gwt_fragment=page=studies,path=study16615296) [Hernández-Pliego et al. 2015](https://doi.org/10.5441/001/1.sj8t3r11)
+1. Submit an http request as described below for a study and user requiring license terms be accepted, saving the terms as license_terms.txt (in html, search for "License Terms:") and specifying cookies to maintain a session in consecutive calls:
+`curl -v -u username:password -c cookies.txt -o license_terms.txt "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=16615296"`
+
+2. Create and print an md5sum:
+`md5 -r license_terms.txt`
+
+3. Submit an http request for the same study and user again, sending the cookie and including the md5sum (replace ### with the value from step 2):
+`curl -v -u username:password -b cookies.txt -o event_data.csv "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=16615296&license-md5=###"`
 
 ## Accessing the database using HTTP/CSV requests
-The following are examples of how to access information from the Movebank database with HTTP requests. After providing a valid username and password, these calls will return CSV files containing the requested information. Note that the results will be based on the information available to the user as defined by access permissions (see above). For more information about the data model and attributes contained in the database, see Kranstauber et al. (2011) and [the Movebank Attribute Dictionary](https://www.movebank.org/node/2381).
+The following are examples of how to access information from the Movebank database with HTTP requests. After providing a valid username and password, these calls will return CSV files containing the requested information. Note that the results will be based on the information available to the user as defined by access permissions (see above). For more information about the data model and attributes contained in the database, see [Kranstauber et al. (2011)](https://doi.org/10.1016/j.envsoft.2010.12.005) and the [Movebank Attribute Dictionary](https://www.movebank.org/node/2381). A machine-readable, persistent vocabulary is currently being organized at http://vocab.nerc.ac.uk/collection/MVB/current.
 
 ### Get a list of attribute names
 `https://www.movebank.org/movebank/service/direct-read?attributes`
@@ -87,7 +100,7 @@ Result
 
 	acknowledgements,bounding_box,citation,comments,grants_used,has_quota,i_am_owner,id,license_terms,location_description,main_location_lat,main_location_long,name,number_of_deployments,number_of_events,number_of_individuals,number_of_tags,principal_investigator_address,principal_investigator_email,principal_investigator_name,study_objective,study_type,suspend_license_terms,timestamp_end,timestamp_start,i_can_see_data,there_are_data_which_i_cannot_see ...
 
-These results provide the study name (`study`), the study ID (`id`), user-provided study details, and information about your username's access permissions. To determine your access rights, filter the list using `i_am_owner`, `i_can_see_data` and/or `there_are_data_which_i_cannot_see`. Remember that you may have permission to see only the study details, view some or all tracks but not download data, or view and download some or all data. Also, there are studies that you do not have permission to see at all—these studies will not be included in the list. Please ignore the columns with summary statistics about the studies (`number_of_deployments`, `number_of_events`, `number_of_individuals`, `number_of_tags`, `timestamp_end`, `timestamp_start`)—these columns are now obsolete.
+These results provide the study name (`study`), the study ID (`id`), user-provided study details and information about the user's access [permissions](https://www.movebank.org/node/43). To determine your access rights, filter the list using `i_am_owner`, `i_can_see_data` and/or `there_are_data_which_i_cannot_see`. Here 'see' refers to your rights to view tracks in [Movebank](https://www.movebank.org/panel_embedded_movebank_webapp) and not to download data—you will be able to view all studies you can download but not download all studies you can view. You might have permission to see only the study details, view some or all tracks but not download data, or view and download some or all data. Studies you do not have permission to see at all will not be included in the list. Please ignore the columns with summary statistics about the studies (`number_of_deployments`, `number_of_events`, `number_of_individuals`, `number_of_tags`, `timestamp_end`, `timestamp_start`)—these columns are currently obsolete.
 
 #### Get a list of studies a user is data manager for
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_am_owner=true`
@@ -95,7 +108,7 @@ These results provide the study name (`study`), the study ID (`id`), user-provid
 Results will be the same as in the previous example, but filtered for only the studies for which `i_am_owner` contains `TRUE`.
 
 ### Get descriptions of entities in a study
-When you have a certain study of interest, you can access information contained in that study using the study’s Movebank ID (available in [the Study Details](https://www.movebank.org/node/1942#study_details)). You can obtain information for the following entity types: `study`, `individual`, `tag`, `deployment`, and `event`. The event entities contain actual sensor measurements, while the deployment, individual, and tag entities contain descriptive information about the animals, tags, and deployments (i.e. of tags on animals) in the study. In Movebank we refer to the latter information as "[reference data](https://www.movebank.org/2381#metadata)". For the examples that follow we will use the study "Galapagos Albatrosses" (study ID 2911040) which is fully available to the public.
+When you have a certain study of interest, you can access information contained in that study using the study’s Movebank ID (available in [the Study Details](https://www.movebank.org/node/1942#study_details)). You can obtain information for the following entity types: `study`, `individual`, `tag`, `deployment`, and `event`. The event entities contain actual sensor measurements, while the deployment, individual, and tag entities contain descriptive information about the animals, tags, and deployments (i.e. of tags on animals) in the study. In Movebank we refer to the latter information as "[reference data](https://www.movebank.org/2381#metadata)". For the examples that follow we will use the study [Galapagos Albatrosses](https://www.movebank.org/panel_embedded_movebank_webapp?gwt_fragment=page=studies,path=study2911040) (study ID 2911040; [Cruz et al. 2013](https://doi.org/10.5441/001/1.3hp3s250) which is fully available to the public.
 
 #### Get a description about a study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_id=2911040`
@@ -157,7 +170,7 @@ Result
 ```
 
 ### Get event data from a study
-By default, requests for event data return the event-level dataset (the “tracking data” for location sensors) limited to the variables timestamp, location_lat, location_long, individual_id, tag_id (using internal Movebank identifiers), and including locations not associated with an animal (i.e. there is now `individual_id`) and locations marked as outliers.
+By default, requests for event data return the event-level dataset (the “tracking data” for location sensors) limited to the variables timestamp, location_lat, location_long, individual_id, tag_id (using internal Movebank identifiers) and including locations not associated with an animal (i.e. there is no `individual_id`) and locations marked as outliers.
 
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040`
 
@@ -173,7 +186,7 @@ Result
 |2008-05-31 19:30:18.998 |    -1.372912|     -89.74013|       2911059| 2911107|
 ```
 
-However, datasets often contain additional variables, and non-location sensors (e.g. geolocators and accelerometers) do not contain location coordinates. In addition, if any filtering has been done on the study (e.g. to flag outliers) it might be important to receive the 'visible' and outlier attributes. For these reasons, you might want to include additional variables in your request.
+Datasets often contain additional variables, local tag and animal identifiers might be preferred to the internal IDs, and non-location sensors (e.g. geolocators and accelerometers) do not contain location coordinates. In addition, if any filtering has been done on the study (e.g. to flag outliers) it might be important to receive the 'visible' and outlier attributes. 
 
 #### Get event data with all event-level attributes
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&attributes=all`
@@ -181,33 +194,31 @@ However, datasets often contain additional variables, and non-location sensors (
 Result
 
 ```
-|individual_id|deployment_id| tag_id|study_id|sensor_type_id|eobs_battery_voltage|eobs_fix_battery_voltage|eobs_horizontal_accuracy_estimate|eobs_key_bin_checksum|eobs_speed_accuracy_estimate|eobs_start_timestamp   |eobs_status|eobs_temperature|eobs_type_of_fix|eobs_used_time_to_get_fix|ground_speed|heading|height_above_ellipsoid|location_lat|location_long|timestamp              |visible|event_id|
-|------------:|------------:|------:|-------:|-------------:|-------------------:|-----------------------:|--------------------------------:|--------------------:|---------------------------:|:----------------------|:----------|---------------:|---------------:|------------------------:|-----------:|------:|---------------------:|-----------:|------------:|:----------------------|:------|-------:|
-|      2911059|      9472219|2911107| 2911040|           653|                3686|                    3437|                            12.03|           2396171168|                        0.67|2008-05-31 13:28:48.000|"A"        |              12|               3|                       74|        0.01|  21.63|                  16.5|   -1.372641|   -89.740214|2008-05-31 13:30:02.001|true   |28192174|
-|      2911059|      9472219|2911107| 2911040|           653|                3701|                    3452|                             2.82|           2700991056|                        0.24|2008-05-31 14:59:59.000|"A"        |              19|               3|                       45|         0.0|  95.68|                  12.6|  -1.3728941|  -89.7401542|2008-05-31 15:00:44.998|true   |28192175|
-|      2911059|      9472219|2911107| 2911040|           653|                3701|                    3482|                             4.35|            540734184|                        2.57|2008-05-31 16:30:00.000|"A"        |              24|               3|                       39|        0.11|  13.76|                  17.4|  -1.3728809|  -89.7401401|2008-05-31 16:30:39.998|true   |28192176|
-|      2911059|      9472219|2911107| 2911040|           653|                3691|                    3476|                             2.82|           2845350485|                        2.61|2008-05-31 18:00:00.000|"A"        |              18|               3|                       49|         0.2|   9.83|                  24.8|  -1.3728911|  -89.7401596|2008-05-31 18:00:49.998|true   |28192177|
-|      2911059|      9472219|2911107| 2911040|           653|                3691|                    3541|                             4.61|           1429925913|                         2.7|2008-05-31 19:30:00.000|"A"        |              22|               3|                       18|        0.24|  37.36|                  19.0|  -1.3729121|   -89.740127|2008-05-31 19:30:18.998|true   |28192178|
+|individual_id|deployment_id| tag_id|study_id|sensor_type_id|individual_local_identifier|tag_local_identifier|eobs_battery_voltage|eobs_fix_battery_voltage|eobs_horizontal_accuracy_estimate|eobs_key_bin_checksum|eobs_speed_accuracy_estimate|eobs_start_timestamp   |eobs_status|eobs_temperature|eobs_type_of_fix|eobs_used_time_to_get_fix|ground_speed|heading|height_above_ellipsoid|location_lat|location_long|timestamp              |visible|event_id|
+|------------:|------------:|------:|-------:|-------------:|--------------------------:|-------------------:|-------------------:|-----------------------:|--------------------------------:|--------------------:|---------------------------:|:----------------------|:----------|---------------:|---------------:|------------------------:|-----------:|------:|---------------------:|-----------:|------------:|:----------------------|:------|-------:|
+|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"           :|"131"              :|                3686|                    3437|                            12.03|           2396171168|                        0.67|2008-05-31 13:28:48.000|"A"        |              12|               3|                       74|        0.01|  21.63|                  16.5|   -1.372641|   -89.740214|2008-05-31 13:30:02.001|true   |28192174|
+|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"           :|"131"              :|                3701|                    3452|                             2.82|           2700991056|                        0.24|2008-05-31 14:59:59.000|"A"        |              19|               3|                       45|         0.0|  95.68|                  12.6|  -1.3728941|  -89.7401542|2008-05-31 15:00:44.998|true   |28192175|
+|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"           :|"131"              :|                3701|                    3482|                             4.35|            540734184|                        2.57|2008-05-31 16:30:00.000|"A"        |              24|               3|                       39|        0.11|  13.76|                  17.4|  -1.3728809|  -89.7401401|2008-05-31 16:30:39.998|true   |28192176|
+|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"           :|"131"              :|                3691|                    3476|                             2.82|           2845350485|                        2.61|2008-05-31 18:00:00.000|"A"        |              18|               3|                       49|         0.2|   9.83|                  24.8|  -1.3728911|  -89.7401596|2008-05-31 18:00:49.998|true   |28192177|
+|      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"           :|"131"              :|                3691|                    3541|                             4.61|           1429925913|                         2.7|2008-05-31 19:30:00.000|"A"        |              22|               3|                       18|        0.24|  37.36|                  19.0|  -1.3729121|   -89.740127|2008-05-31 19:30:18.998|true   |28192178|
 ```
 
-This could provide more information (and data volume) than is needed for a given purpose, so it is also possible to specify which variables to include.
+This could provide more information (and data volume) than necessary, so it is also possible to specify which attributes to include and in what order. The following example is a good minimum default set for location events. See “get a list of attribute names” above for available attributes. Note that filtering for some attributes may not work. Please contact support@movebank.org if you find an attribute that is not included in results.
 
 #### Get event data with select additional event-level attributes
-`https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&attributes=individual_id,timestamp,location_long,location_lat,visible`
+`https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&attributes=individual_local_identifier,tag_local_identifier,timestamp,location_long,location_lat,visible`
 
 Result
 
 ```
-| individual_id|timestamp               | location_long| location_lat|visible |
-|-------------:|:-----------------------|-------------:|------------:|:-------|
-|       2911059|2008-05-31 13:30:02.001 |     -89.74021|    -1.372641|true    |
-|       2911059|2008-05-31 15:00:44.998 |     -89.74015|    -1.372894|true    |
-|       2911059|2008-05-31 16:30:39.998 |     -89.74014|    -1.372881|true    |
-|       2911059|2008-05-31 18:00:49.998 |     -89.74016|    -1.372891|true    |
-|       2911059|2008-05-31 19:30:18.998 |     -89.74013|    -1.372912|true    |
+| individual_local_identifier|timestamp               | location_long| location_lat|visible |
+|---------------------------:|:-----------------------|-------------:|------------:|:-------|
+|"4264-84830852"             |2008-05-31 13:30:02.001 |     -89.74021|    -1.372641|true    |
+|"4264-84830852"             |2008-05-31 15:00:44.998 |     -89.74015|    -1.372894|true    |
+|"4264-84830852"             |2008-05-31 16:30:39.998 |     -89.74014|    -1.372881|true    |
+|"4264-84830852"             |2008-05-31 18:00:49.998 |     -89.74016|    -1.372891|true    |
+|"4264-84830852"             |2008-05-31 19:30:18.998 |     -89.74013|    -1.372912|true    |
 ```
-
-Here you can specify the order and inclusion of specific event-level attributes. See “get a list of attribute names” above for available attributes. Note that filtering for some attributes may not work. Please contact support@movebank.org if you find an attribute that is not included in results.
 
 #### Get event data for a single sensor type
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&sensor_type_id=653`
@@ -241,7 +252,7 @@ Result
 |2008-05-31 19:30:18.998 |    -1.372912|     -89.74013|       2911059| 2911107|
 ```
 
-The individual_id refers to the internal Movebank identifier for each animal in Movebank (which does not change if the user changes the Animal ID). You can view these identifiers in [the Event Editor](https://www.movebank.org/node/42) or contact support@movebank.org for help.
+The individual_id refers to the internal Movebank identifier for each animal in Movebank (which does not change if the user changes the Animal ID).
 
 #### Get event data for a specified time period
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&timestamp_start=20080604133045000&timestamp_end=20080604133046000`
@@ -369,7 +380,7 @@ Result
 …
 ```
 
-Results will include additional specified attributes if they are available in the dataset. To see other available attributes that may be in the dataset, see the Movebank Attribute Dictionary (www.movebank.org/node/2381).
+Results will include additional specified attributes if they are available in the dataset.
 
 #### Get event data with all of the specifications described above
 `https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers[]=4262-84830876&individual_local_identifiers[]=1163-1163&individual_local_identifiers[]=2131-2131&max_events_per_individual=10&timestamp_start=1213358400000&timestamp_end=1213617600000&sensor_type=gps&attributes=timestamp,location_long,location_lat,ground_speed,heading`
