@@ -16,7 +16,7 @@ Contents
 		- [Get information about animals in a study](#get-information-about-animals-in-a-study)
 		- [Get information about deployments in a study](#get-information-about-deployments-in-a-study)
 		- [Get information about tag sensors in a study](#get-information-about-tag-sensors-in-a-study)
-		- [Get event attributes for a sensor in a study](#get-event-attributes-for-a-sensor-in-a-study)
+		- [Get study attributes for a sensor in a study](#get-study-attributes-for-a-sensor-in-a-study)
 	- [Get event data from a study](#get-event-data-from-a-study)
 		- [Get event data with all event-level attributes](#get-event-data-with-all-event-level-attributes)
 		- [Get event data with select additional event-level attributes](#get-event-data-with-select-additional-event-level-attributes)
@@ -74,7 +74,6 @@ You may want to query general information about what is contained in Movebank. Y
 #### Get a list of sensor types
 `https://www.movebank.org/movebank/service/direct-read?entity_type=tag_type`
 
-
 Result
 
 ```
@@ -102,10 +101,9 @@ From this you can see that the sensor type ID for GPS data is 653 and that the �
 
 Result
 
-
 	acknowledgements,citation,grants_used,has_quota,i_am_owner,id,license_terms,main_location_lat,main_location_long,name,number_of_deployments,number_of_individuals,number_of_tags,principal_investigator_address,principal_investigator_email,principal_investigator_name,study_objective,study_type,suspend_license_terms,i_can_see_data,there_are_data_which_i_cannot_see,timestamp_first_deployed_location,timestamp_last_deployed_location,number_of_deployed_locations,taxon_ids,sensor_type_ids
 
-These results provide the study name (`study`), the study ID (`id`), user-provided study details, calculated study statistics, and information about the user's access [permissions](https://www.movebank.org/node/43). To determine your access rights, filter the list using `i_am_owner`, `i_can_see_data` and/or `there_are_data_which_i_cannot_see`. Here 'see' refers to your rights to view tracks in [Movebank](https://www.movebank.org/panel_embedded_movebank_webapp) and not to download data—you will be able to view all studies you can download but not download all studies you can view. You might have permission to see only the study details, view some or all tracks but not download data, or view and download some or all data. Studies you do not have permission to see at all will not be included in the list. Summary statistics about the studies (contained in `number_of_deployments`, `number_of_individuals`, `number_of_tags`, `timestamp_first_deployed_location`, `timestamp_last_deployed_location`,`number_of_deployed_locations`,`taxon_ids`,`sensor_type_ids`) are updated approximately once per day.
+These results provide the study name (`study`), the study ID (`id`), user-provided study details, calculated study statistics, and information about the user's access [permissions](https://www.movebank.org/node/43). To determine your access rights, filter the list using `i_am_owner`, `i_can_see_data` and/or `there_are_data_which_i_cannot_see`. Here 'see' refers to your rights to view tracks in [Movebank](https://www.movebank.org/panel_embedded_movebank_webapp) and not to download data—you will be able to view all studies you can download but not download all studies you can view. You might have permission to see only the study details, view some or all tracks but not download data, or view and download some or all data. Studies you do not have permission to see at all will not be included in the list. Summary statistics about the studies (contained in `number_of_deployments`, `number_of_individuals`, `number_of_tags`, `timestamp_first_deployed_location`, `timestamp_last_deployed_location`, `number_of_deployed_locations`, `taxon_ids`,`  sensor_type_ids`) are updated approximately once per day.
 
 #### Get a list of studies a user is data manager for
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_am_owner=true`
@@ -113,7 +111,7 @@ These results provide the study name (`study`), the study ID (`id`), user-provid
 Results will be the same as in the previous example, but filtered for only the studies for which `i_am_owner` contains `TRUE`.
 
 ### Get descriptions of entities in a study
-When you have a certain study of interest, you can access information contained in that study using the study’s Movebank ID (available in [the Study Details](https://www.movebank.org/node/1942#study_details)). You can obtain information for the following entity types: `study`, `individual`, `tag`, `deployment`, `sensor` and `event`. The event entities contain actual sensor measurements, while the deployment, individual, and tag entities contain descriptive information about the animals, tags, and deployments (i.e. of tags on animals) in the study. In Movebank we refer to the latter information as "[reference data](https://www.movebank.org/2381#metadata)". For the examples that follow we will use the study [Galapagos Albatrosses](https://www.movebank.org/panel_embedded_movebank_webapp?gwt_fragment=page=studies,path=study2911040) (study ID 2911040; [Cruz et al. 2013](https://doi.org/10.5441/001/1.3hp3s250)) which is fully available to the public.
+When you have a certain study of interest, you can access information contained in that study using the study’s Movebank ID (available in [the Study Details](https://www.movebank.org/node/1942#study_details)). You can obtain information for the following entity types: `study`, `individual`, `tag`, `deployment`, `sensor`, `study_attribute` and `event`. The event entity contains actual sensor measurements stored in study attributes, and one or more sensors can be associated with each tag. The deployment, individual, and tag entities contain descriptive information about the animals, tags, and deployments (i.e. of tags on animals) in the study. In Movebank we refer to the latter information as "[reference data](https://www.movebank.org/2381#metadata)". For the examples that follow we will use the study [Galapagos Albatrosses](https://www.movebank.org/panel_embedded_movebank_webapp?gwt_fragment=page=studies,path=study2911040) (study ID 2911040; [Cruz et al. 2013](https://doi.org/10.5441/001/1.3hp3s250)) which is fully available to the public.
 
 #### Get a description about a study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_id=2911040`
@@ -125,7 +123,6 @@ Result
 |:---------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------|:---------|:----------|-------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------:|------------------:|:---------------------|---------------------:|---------------------:|--------------:|:------------------------------|:----------------------------|:---------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------|:---------------------|:--------------|:---------------------------------|---------------------------------:|--------------------------------:|----------------------------:|:--------------------|:---------------|
 |Thanks for help: ECCD, GNPS |Dodge S, Bohrer G, Weinzierl R, Davidson SC, Kays R, Douglas D, Cruz S, Han J, Brandes D, Wikelski M (2013) The Environmental-Data Automated Track Annotation (Env-DATA) System—linking animal tracks with environmental data. Movement Ecology 1:3. doi:10.1186/2051-3933-1-3 |NSF and Max Planck |true      |false      | 2911040|These data have been published by the Movebank Data Repository with DOI 10.5441/001/1.3hp3s250. See www.datarepository.movebank.org/handle/10255/move.331. |             -1.39|             -89.62|Galapagos Albatrosses |                    28|                    28|             28|                               |                             |                            |Tracking of Galapagos albatrosses for conservation and basic science. Waved albatrosses were tracked during breeding and non-breeding periods between 2008 and 2010. |research   |true                  |true           |false                             |           2008-05-31 13:29:31.998|          2008-11-06 18:00:55.998|                        16028|:Phoebastria irrorata|GPS,Acceleration|
 ```
-
 
 #### Get information about tags in a study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=tag&study_id=2911040`
@@ -191,7 +188,7 @@ Result
 
 Tags can contain event data for more than one sensor type. Here you can see what sensor data are provided by each tag. Keep in mind that in Movebank, all attribute values for each imported event record (i.e. line containing a timestamp in the original data file) are assigned to one sensor type. In some cases measurements for multiple sensors are contained in one line, in which case all of those measurements will be associated with the primary sensor as chosen by the user. For example, GPS units commonly provide tabular data that include a temperature measurement in the same line of data with each GPS fix. In this case both the temperature and location coordinates will have the sensor type GPS (i.e. sensor_type_id 653). To more thoroughly evaluate what kinds sensor information are contained in a study, you'll want to see what event data attributes are present.
 
-#### Get event attributes for a sensor in a study
+#### Get study attributes for a sensor in a study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study_attribute&study_id=2911040&sensor_type_id=653`
 
 Result
@@ -219,11 +216,9 @@ Result
 |  2911040|            653|"visible"                           |"boolean"  |
 ```
 
-This information can help you evaluate whether a study might be relevant to a given research question, or which event attributes to include in requests for event data.
+These are the event-level attributes associated with the sensor in this study. This information can help you evaluate whether a study might be relevant to a given research question, or which event attributes to include in requests for event data.
 
 ### Get event data from a study
-By default, requests for event data return the event-level dataset (the “tracking data” for location sensors) limited to the variables timestamp, location_lat, location_long, individual_id, tag_id (using internal Movebank identifiers) and including locations not associated with an animal (i.e. there is no `individual_id`) and locations marked as outliers.
-
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040`
 
 Result
@@ -238,7 +233,7 @@ Result
 |2008-05-31 19:30:18.998 |    -1.372912|     -89.74013|       2911059| 2911107|
 ```
 
-Datasets often contain additional variables, local tag and animal identifiers might be preferred to the internal IDs, and non-location sensors (e.g. geolocators and accelerometers) do not contain location coordinates. In addition, if any filtering has been done on the study (e.g. to flag outliers) it might be important to receive the 'visible' and outlier attributes. 
+By default, requests for event data return the event-level dataset (the “tracking data” for location sensors) limited to the variables timestamp, location_lat, location_long, individual_id, tag_id (using internal Movebank identifiers) and including locations not associated with an animal (i.e. there is no `individual_id`) and locations marked as outliers. Datasets often contain additional variables, local tag and animal identifiers might be preferred to the internal IDs, and non-location sensors (e.g. geolocators and accelerometers) do not contain location coordinates. In addition, if any filtering has been done on the study (e.g. to flag outliers) it might be important to receive the 'visible' and outlier attributes. 
 
 #### Get event data with all event-level attributes
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&attributes=all`
