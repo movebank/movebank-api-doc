@@ -60,6 +60,8 @@ This example uses curl commands in Terminal on a Mac to accept license terms and
 3. Submit an http request for the same study and user again, sending the cookie and including the md5sum (replace ### with the value from step 2):
 `curl -v -u username:password -b cookies.txt -o event_data.csv "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=16615296&license-md5=###"`
 
+Also see an example in Python [added to this repository](https://github.com/movebank/movebank-api-doc/blob/master/mb_Meschenmoser.py).
+
 ## Accessing the database using HTTP/CSV requests
 The following are examples of how to access information from the Movebank database with HTTP requests. After providing a valid username and password, these calls will return CSV files containing the requested information. Note that the results will be based on the information available to the user as defined by access permissions (see above). For more information about the data model see Movebank's [user manual](https://www.movebank.org/node/9) and [Kranstauber et al. (2011)](https://doi.org/10.1016/j.envsoft.2010.12.005). Attribute definitions are provided in the [Movebank Attribute Dictionary](https://www.movebank.org/node/2381) and a machine-readable, persistent version of the vocabulary is published at http://vocab.nerc.ac.uk/collection/MVB.
 
