@@ -301,7 +301,19 @@ Result
 |2008-05-31 19:30:18.998 |    -1.372912|     -89.74013|       2911059| 2911107|
 ```
 
-The individual_id refers to the internal Movebank identifier for each animal in Movebank (which does not change if the user changes the Animal ID). Include individual_local_identifier for the user-defined animal ID.
+The individual_id refers to the internal Movebank identifier for each animal in Movebank. Include individual_local_identifier for the user-defined animal ID.
+
+**WARNING:** It is not encouraged to treat the internal Movebank identifiers 'individual_id', 'deployment_id' and 'tag_id' as a "stable external reference" 
+as there are various internal and external technical reasons which might cause changes to these internal Movebank identifiers. For example: 
+* Deleting and re-creating an animal or deployment by the user will create new entities and assign new internal Movebank identifiers to them. 
+* Uploading reference data will re-create the individual and deployement entities and assign new internal Movebank identifiers to them.
+* Re-importing tags from live feeds will re-create new tag entities and assign new internal Movebank identifiers.
+* Some data providers support reference data pushes. A reference data push will re-create the individual and deployement entities 
+and assign new internal Movebank identifiers.
+
+It is always advised to get the current reference data via the REST API and match the entities you are interested in by 'individual_local_identifier', 'deployment_local_identifier' or 'tag_local_identifier' and then use the corresponding 'individual_id', 'deployment_id' or 'tag_id' where necessary.
+
+It is best practice keeping the 'individual_local_identifier', 'deployment_local_identifier' and 'tag_local_identifier' identifiers stable if you want to refer to these entities from outside of Movebank.  
 
 #### Get event data for a specified time period
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&timestamp_start=20080604133045000&timestamp_end=20080604133046000`
