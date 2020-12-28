@@ -39,6 +39,29 @@ Contents
 ## Introduction
 Movebank's REST API allows access to pull data from [Movebank](https://www.movebank.org) using HTTP or JSON requests made in a web browser or through external programs such as R. All users of data accessed from Movebank must abide by Movebank's [general terms of use](https://www.movebank.org/cms/movebank-content/general-movebank-terms-of-use) and [data policy](https://www.movebank.org/cms/movebank-content/data-policy). See Movebank's [citation guidelines](https://www.movebank.org/cms/movebank-content/citation-guidelines) for guidance on how to cite data use. Below are details, example requests, and relevant information about security and access controls.
 
+### Understanding data from Movebank
+Movebank's data model is described in the [user manual](https://www.movebank.org/cms/movebank-content/mb-data-model) and [Kranstauber et al. (2011)](https://doi.org/10.1016/j.envsoft.2010.12.005). Definitions of data attributes are provided in the [Movebank Attribute Dictionary](https://www.movebank.org/cms/movebank-content/movebank-attribute-dictionary). A machine-readable, persistent version of this vocabulary is published at http://vocab.nerc.ac.uk/collection/MVB. Use of the REST API to access data you are not already familiar with can lead to the download of data that excludes information that can be critical to understanding the data. 
+
+The following key concepts and attributes are important to be aware of. Also read about [defining deployments and outliers](https://www.movebank.org/cms/movebank-content/deployments-and-outliers) in Movebank.
+
+**Animal, tag, and deployment identifiers:** Movebank's data model associates each measurement (e.g. a GPS fix) with a tag, and tag measurements can be further associated with animals via deployments. Each animal, tag, and deployment has a 
+- a user-defined name: the animal, tag, and deployment IDs in Movebank, also referred to as the `individual_local_identifier`, `deployment_local_identifier` or `tag_local_identifier`.
+- an internal database identifier, not typically shown in Movebank: the `individual_id`, `deployment_id` and `tag_id`.
+ 
+We do not encourage treating the internal database identifiers as a stable external reference to data, as these can change over time for various technical reasons. For example, new entities may be created and new internal identifiers assigned when
+- the data owner deletes and re-creates animals, deployments, or tags. 
+- the data owner uploads reference data that re-creates animals, deployments, or tags. 
+- the data owner deletes and re-imports tags from live feeds.
+- a data provider pushes updates to reference data that re-create animals, deployments or tags.
+
+We advise obtaining the identifiers via the REST API using the examples below, matching the entities you are interested in by `individual_local_identifier`, `deployment_local_identifier` or `tag_local_identifier`, and then using the corresponding `individual_id`, `deployment_id` and `tag_id` where necessary.
+
+For data owners, it is best practice to keep the `individual_local_identifier`, `deployment_local_identifier` or `tag_local_identifier` identifiers—i.e., the animal, tag and deployment IDs—stable if you want to refer to these entities from outside of Movebank.
+
+Local identifiers are unique within but not across studies. If you are combining data from multiple studies from Movebank using the REST API, we suggest referring to entities using a combination of the local identifier and study ID or name.
+
+**Outliers:** Event records, most commonly location estimates, can be assigned as outliers in Movebank by data owners and providers using several different tools and data attributes. The results of all outlier management steps are summarized in the (`visible`)[http://vocab.nerc.ac.uk/collection/MVB/current/MVB000209/] attribute. We recommend including the `visible` attribute in event-level requests using the examples below, in order to retain this information and the ability to exclude flagged outliers from subsequent use if desired.
+
 ## Security, data access and authentication
 Access to data is defined by data owners for each study in Movebank following [Movebank's permissions options](https://www.movebank.org/cms/movebank-content/permissions-and-sharing). If no username and password are provided, results will be restricted to data that owners have made publicly available. If a username and password are provided, results will be restricted to data that the user has access to. To access tracking actual data, including for visualization on external websites, the user (or the public) needs permission to download data.
 
@@ -63,7 +86,7 @@ This example uses curl commands in Terminal on a Mac to accept license terms and
 Also see an example in Python [added to this repository](https://github.com/movebank/movebank-api-doc/blob/master/mb_Meschenmoser.py).
 
 ## Accessing the database using HTTP/CSV requests
-The following are examples of how to access information from the Movebank database with HTTP requests. After providing a valid username and password, these calls will return CSV files containing the requested information. Note that the results will be based on the information available to the user as defined by access permissions (see above). For more information about the data model see Movebank's [user manual](https://www.movebank.org/cms/movebank-content/mb-data-model) and [Kranstauber et al. (2011)](https://doi.org/10.1016/j.envsoft.2010.12.005). Attribute definitions are provided in the [Movebank Attribute Dictionary](https://www.movebank.org/cms/movebank-content/movebank-attribute-dictionary) and a machine-readable, persistent version of the vocabulary is published at http://vocab.nerc.ac.uk/collection/MVB.
+The following are examples of how to access information from the Movebank database with HTTP requests. After providing valid credentials, these calls will return CSV files containing the requested information. Note that the results will be based on the information available to the user as defined by access permissions (see above).
 
 ### Get a list of attribute names
 `https://www.movebank.org/movebank/service/direct-read?attributes`
@@ -103,7 +126,7 @@ From this you can see that the sensor type ID for GPS data is 653 and that the �
 #### Get a list of studies
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study`
 
-Result
+Result header
 
 `acknowledgements,citation,create_ts,event_grace_period,go_public_date,go_public_license_type,grants_used,has_quota,i_am_owner,id,is_test,license_terms,license_type,main_location_lat,main_location_long,name,number_of_deployments,number_of_individuals,number_of_tags,principal_investigator_address,principal_investigator_email,principal_investigator_name,study_objective,study_type,suspend_go_public_date,suspend_license_terms,i_can_see_data,there_are_data_which_i_cannot_see,i_have_download_access,i_am_collaborator,study_permission,timestamp_first_deployed_location,timestamp_last_deployed_location,number_of_deployed_locations,taxon_ids,sensor_type_ids`
 
@@ -142,9 +165,10 @@ Result
 |                 |         | 2911109|134              |e-obs GmbH        |      |                |          |                     |                    |     22|
 |                 |         | 2911110|135              |e-obs GmbH        |      |                |          |                     |                    |     22|
 |                 |         | 2911111|136              |e-obs GmbH        |      |                |          |                     |                    |     22|
+...
 ```
 
-Attributes listed in the file include tag descriptors currently in the database. Those that have not been provided by the data owner will be blank. The attribute "local_identifier" contains the user-provided tag IDs (which can be changed by the data owner), and the attribute "id" contains internal identifiers automatically created in the database.
+Attributes listed in the file include tag descriptors currently in the database. Those that have not been provided by the data owner will be blank. The attribute "local_identifier" contains the user-provided tag IDs (which can be changed by the data owner), and the attribute "id" contains internal identifiers automatically created in the database. Read more above about [understanding data in Movebank](#understanding-data-in-movebank)
 
 #### Get information about animals in a study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=individual&study_id=2911040`
@@ -159,6 +183,7 @@ Result
 |Nest stage: egg |               |                   |                    | 2911075|                 |2368-2368        |          |        |    |Phoebastria irrorata |2008-06-23 17:58:01.998|2008-09-28 13:31:13.999|             1503|                     1|GPS,Acceleration|             |
 |Nest stage: egg |               |                   |                    | 2911074|                 |3275-30662       |          |        |    |Phoebastria irrorata |2008-06-23 19:28:30.999|2008-08-03 10:30:43.998|              647|                     1|GPS,Acceleration|             |
 |Nest stage: egg |               |                   |                    | 2911078|                 |3606-30668       |          |        |    |Phoebastria irrorata |2008-06-23 17:57:56.998|2008-06-25 15:00:14.000|               32|                     1|GPS,Acceleration|             |
+...
 ```		
 
 #### Get information about deployments in a study
@@ -175,6 +200,7 @@ Result
 |               |adult             |            |                              |tape            |                      |not used in analysis                   |                         |                    |                     |                  |                     |              -1.38|              -89.75|                 | 2008-05-31 06:00:00.000|                        |                    |GPS locations recorded every 90 minutes |                       |                           |                           |                               |                     | 9472206|                 |                           |                      |none              |                   |Punta Suarez   |other-wireless     |
 |               |adult             |            |                              |tape            |                      |used in analysis                       |                         |                    |                     |                  |                     |              -1.38|              -89.75|                 | 2008-05-31 06:00:00.000|                        |                    |GPS locations recorded every 90 minutes |                       |                           |                           |                               |                     | 9472207|                 |                           |                      |none              |                   |Punta Suarez   |other-wireless     |
 |               |adult             |            |                              |tape            |                      |used in analysis and shown in Figs 7-8 |                         |                    |                     |                  |                     |              -1.39|              -89.62|                 | 2008-06-23 06:00:00.000|                        |                    |GPS locations recorded every 90 minutes |                       |                           |                           |                               |                     | 9472208|                 |                           |                      |none              |                   |Punta Cevallos |other-wireless     |
+...
 ```
 
 #### Get information about tag sensors in a study
@@ -190,9 +216,10 @@ Result
 | 2911207|            653| 2911109|
 | 2911208|            653| 2911113|
 | 2911209|            653| 2911131|
+...
 ```
 
-Tags can contain event data for more than one sensor type. Here you can see what sensor data are provided by each tag. Keep in mind that in Movebank, all attribute values for each imported event record (i.e. line containing a timestamp in the original data file) are assigned to one sensor type. In some cases measurements for multiple sensors are contained in one line, in which case all of those measurements will be associated with the primary sensor as chosen by the user. For example, GPS units commonly provide tabular data that include a temperature measurement in the same line of data with each GPS fix. In this case both the temperature and location coordinates will have the sensor type GPS (i.e. sensor_type_id 653). To more thoroughly evaluate what kinds sensor information are contained in a study, you'll want to see what event data attributes are present.
+Tags can contain event data for more than one sensor type. Here you can see what sensor data are provided by each tag. Keep in mind that in Movebank, all attribute values for each imported event record (i.e., a row containing a timestamp in the original data file) are assigned to one sensor type. In some cases measurements for multiple sensors are contained in one line, in which case all of those measurements will be associated with the primary sensor as chosen by the user. For example, GPS units commonly provide tabular data that include a temperature measurement in the same line of data with each GPS fix. In this case both the temperature and location coordinates will have the sensor type GPS (sensor_type_id 653). To more thoroughly evaluate what kinds sensor information are contained in a study, you'll want to see what event data attributes are present.
 
 #### Get study attributes for a sensor in a study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study_attribute&study_id=2911040&sensor_type_id=653`
@@ -237,9 +264,15 @@ Result
 |2008-05-31 16:30:39.998 |    -1.372881|     -89.74014|       2911059| 2911107|
 |2008-05-31 18:00:49.998 |    -1.372891|     -89.74016|       2911059| 2911107|
 |2008-05-31 19:30:18.998 |    -1.372912|     -89.74013|       2911059| 2911107|
+...
 ```
 
-By default, requests for event data return the event-level dataset (the “tracking data” for location sensors) limited to the variables timestamp, location_lat, location_long, individual_id, tag_id (using internal Movebank identifiers) and including locations not associated with an animal (i.e. there is no `individual_id`) and locations marked as outliers. Datasets often contain additional variables, local tag and animal identifiers might be preferred to the internal IDs, and non-location sensors (e.g. geolocators and accelerometers) do not contain location coordinates. In addition, if any filtering has been done on the study (e.g. to flag outliers) it might be important to receive the 'visible' and outlier attributes. 
+By default, requests for event data return the event-level dataset (the “tracking data” for location sensors) limited to the variables timestamp, location_lat, location_long, individual_id, and tag_id. This default request **does not include**
+- Local identifiers specified by the data owner; 
+- The "visible" attribute, which is used to identify records that have been flagged as outliers; 
+- Additional data attributes often contained within the study, including for sensors that do not contain location coordinates (e.g. geolocators and accelerometers). 
+
+We recommend including individual_local_identifier, tag_local_identifier, and visible in event-level requests, as shown in the following examples, to include identifiers and outlier flags as managed by the data owner. Read more about [understanding data from Movebank](#understanding-data-from-movebank) above.
 
 #### Get event data with all event-level attributes
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&attributes=all`
@@ -254,6 +287,7 @@ Result
 |      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"            |"131"               |           Phoebastria irrorata|                3701|                    3482|                             4.35|            540734184|                        2.57|2008-05-31 16:30:00.000|"A"        |              24|               3|                       39|        0.11|  13.76|                  17.4|  -1.3728809|  -89.7401401|2008-05-31 16:30:39.998|true   |28192176|
 |      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"            |"131"               |           Phoebastria irrorata|                3691|                    3476|                             2.82|           2845350485|                        2.61|2008-05-31 18:00:00.000|"A"        |              18|               3|                       49|         0.2|   9.83|                  24.8|  -1.3728911|  -89.7401596|2008-05-31 18:00:49.998|true   |28192177|
 |      2911059|      9472219|2911107| 2911040|           653|"4264-84830852"            |"131"               |           Phoebastria irrorata|                3691|                    3541|                             4.61|           1429925913|                         2.7|2008-05-31 19:30:00.000|"A"        |              22|               3|                       18|        0.24|  37.36|                  19.0|  -1.3729121|   -89.740127|2008-05-31 19:30:18.998|true   |28192178|
+...
 ```
 
 This could provide more information (and data volume) than necessary, so it is also possible to specify which attributes to include and in what order. The following example is a good minimum default set for location events. See “get a list of attribute names” above for available attributes. Note that filtering for some attributes may not work. Please contact support@movebank.org if you find an attribute that is not included in results.
@@ -271,6 +305,7 @@ Result
 |"4264-84830852"             |"131"                |2008-05-31 16:30:39.998 |     -89.74014|    -1.372881|true    |Phoebastria irrorata            |
 |"4264-84830852"             |"131"                |2008-05-31 18:00:49.998 |     -89.74016|    -1.372891|true    |Phoebastria irrorata            |
 |"4264-84830852"             |"131"                |2008-05-31 19:30:18.998 |     -89.74013|    -1.372912|true    |Phoebastria irrorata            |
+...
 ```
 
 #### Get event data for a single sensor type
@@ -286,6 +321,7 @@ Result
 |2008-05-31 16:30:39.998 |    -1.372881|     -89.74014|       2911059| 2911107|
 |2008-05-31 18:00:49.998 |    -1.372891|     -89.74016|       2911059| 2911107|
 |2008-05-31 19:30:18.998 |    -1.372912|     -89.74013|       2911059| 2911107|
+...
 ```
 
 If multiple sensor types are used in a study, use this to access event-level data for a specific sensor. See “get a list of sensor types” above for the `sensor_type_id` for each sensor type.
@@ -303,21 +339,8 @@ Result
 |2008-05-31 16:30:39.998 |    -1.3728809|     -89.7401401|       2911059| 2911107|
 |2008-05-31 18:00:49.998 |    -1.3728911|     -89.7401596|       2911059| 2911107|
 |2008-05-31 19:30:18.998 |    -1.3729121|      -89.740127|       2911059| 2911107|
-```
-
-The individual_id refers to the internal Movebank identifier for each animal in Movebank. Include individual_local_identifier for the user-defined animal ID.
-
-**WARNING:** It is not encouraged to treat the internal Movebank identifiers 'individual_id', 'deployment_id' and 'tag_id' as a "stable external reference" 
-as there are various internal and external technical reasons which might cause changes to these internal Movebank identifiers. For example: 
-* Deleting and re-creating an animal or deployment by the user will create new entities and assign new internal Movebank identifiers to them. 
-* Uploading reference data will re-create the individual and deployement entities and assign new internal Movebank identifiers to them.
-* Re-importing tags from live feeds will re-create new tag entities and assign new internal Movebank identifiers.
-* Some data providers support reference data pushes. A reference data push will re-create the individual and deployement entities 
-and assign new internal Movebank identifiers.
-
-It is always advised to get the current reference data via the REST API and match the entities you are interested in by 'individual_local_identifier', 'deployment_local_identifier' or 'tag_local_identifier' and then use the corresponding 'individual_id', 'deployment_id' or 'tag_id' where necessary.
-
-It is best practice keeping the 'individual_local_identifier', 'deployment_local_identifier' and 'tag_local_identifier' identifiers stable if you want to refer to these entities from outside of Movebank.  
+...
+```  
 
 #### Get event data for a specified time period
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&timestamp_start=20080604133045000&timestamp_end=20080604133046000`
@@ -335,6 +358,7 @@ Result
 |2008-06-04 13:30:45.000 |             |              |       2911060| 2911109|
 |2008-06-04 13:30:45.000 |             |              |       2911064| 2911131|
 |2008-06-04 13:30:45.000 |             |              |       2911065| 2911134|
+...
 ```
 
 Timestamps should be provided in the format `yyyyMMddHHmmssSSS` (see [list of letter meanings](http://fmpp.sourceforge.net/datetimepattern.html)).
@@ -365,25 +389,25 @@ If you request data that you do not have permission to see, you will get a messa
 ```
 
 ### Accessing the database from R
-The HTTP/CSV requests can be used to access Movebank data from R. [The R package `move`](http://cran.r-project.org/web/packages/move/index.html) provides flexible options for browsing and visualizing data from Movebank in R. In addition, [the package source files](https://r-forge.r-project.org/scm/viewvc.php/pkg/move/R/WebImport.R?view=markup&root=move) provide information that can be used to access Movebank from R without the package.
+The HTTP/CSV requests can be used to access Movebank data from R. [The R package `move`](http://cran.r-project.org/web/packages/move/index.html) provides flexible options for browsing and visualizing data from Movebank in R using the REST API. In addition, [the package source files](https://r-forge.r-project.org/scm/viewvc.php/pkg/move/R/WebImport.R?view=markup&root=move) provide information that can be used to access Movebank from R without the package.
 
 ## Accessing the database using JSON/JavaScript requests
 The following are examples for how to access Movebank data using JSON requests. This is currently designed primarily to allow tracking data to be displayed on external maps using the Google Maps API (see below). You will need the relevant study ID number and sensor type description in the database to access data (see above).
 
 ### Get public or private data
-In the examples below, we use URLs that do not include usernames or passwords. In order to access data from a study without providing login information, the study must be completely accessible to the public as described above. Consider [making data publicly available](https://www.movebank.org/node/43#public_full_access) so that data can be accessed without providing any login information. Remember that making data available does not give others permission to use your data, and that license terms still apply. If data are public, the http request should begin with `https://www.movebank.org/movebank/service/public/json?`, for example
+In the examples below, we use URLs that do not include usernames or passwords. In order to access data from a study without providing login information, the study must be completely accessible to the public as described above. Consider [making data publicly available](https://www.movebank.org/cms/movebank-content/permissions-and-sharing#examples) so that data can be accessed without providing any login information. Remember that making data available does not give others permission to use your data, and that terms of use still apply as described [above](#introduction). If data are public, the http request should begin with `https://www.movebank.org/movebank/service/public/json?`, for example
 
-`https://www.movebank.org/movebank/service/public/json?&study_id=2911040&individual_local_identifiers[]=4262-84830876&max_events_per_individual=5&sensor_type=gps`
+`https://www.movebank.org/movebank/service/public/json?&study_id=2911040&individual_local_identifiers=4262-84830876&max_events_per_individual=5&sensor_type=gps`
 
 If data are not public, the http request should begin with `https://www.movebank.org/movebank/service/json-auth?`, for example
 
-`https://www.movebank.org/movebank/service/json-auth?&study_id=2911040&individual_local_identifiers[]=4262-84830876&max_events_per_individual=5&sensor_type=gps`
+`https://www.movebank.org/movebank/service/json-auth?&study_id=2911040&individual_local_identifiers=4262-84830876&max_events_per_individual=5&sensor_type=gps`
 
-The browser will prompt you to provide your Movebank username and password before proceeding with the request. Alternatively, you can provide user credentials using PHP that can be stored on your local server. For example,
+The browser will prompt you to provide your Movebank credentials before proceeding with the request. Alternatively, you can provide user credentials using PHP that can be stored on your local server. For example,
 
 ```php
 <?php
-$url='https://www.movebank.org/movebank/service/json-auth?study_id=16880941&individual_local_identifiers[]=Mary&individual_local_identifiers[]=Butterball&individual_local_identifiers[]=Schaumboch&&max_events_per_individual=2000&sensor_type=gps';
+$url='https://www.movebank.org/movebank/service/json-auth?study_id=16880941&individual_local_identifiers=Mary&individual_local_identifiers=Butterball&individual_local_identifiers=Schaumboch&max_events_per_individual=2000&sensor_type=gps';
 
 $user=‘username’;
 $password=‘password’;
@@ -398,17 +422,17 @@ $context = stream_context_create(array(
 For non-public data, use the example above to modify your requests that use the examples below.
 
 ### Get event data from the study
-`https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers[]=4262-84830876&sensor_type=gps`
+`https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&sensor_type=gps`
 
 Result
 
 ```
-{"individuals":[{"individual_local_identifier":"4262-84830876","individual_taxon_canonical_name":"Phoebastria irrorata","locations":[
-{"timestamp":1212240595000,"location_long":-89.7400582,"location_lat":-1.372675},
-{"timestamp":1212240618999,"location_long":-89.740053,"location_lat":-1.3726544},
-{"timestamp":1212246021998,"location_long":-89.7400575,"location_lat":-1.3726589},
-{"timestamp":1212251449999,"location_long":-89.7400497,"location_lat":-1.3726499},
-{"timestamp":1212256913000,"location_long":-89.7400693,"location_lat":-1.3726749},
+{"individuals":[{"study_id":2911040,"individual_local_identifier":"1094-1094","individual_taxon_canonical_name":"Phoebastria irrorata","sensor_type_id":653,"sensor_id":2911314,"individual_id":2911080,"locations":[
+{"timestamp":1214238511999,"location_long":-89.6210002,"location_lat":-1.3895437},
+{"timestamp":1214238608998,"location_long":-89.6210024,"location_lat":-1.3895456},
+{"timestamp":1214244055998,"location_long":-89.6209386,"location_lat":-1.3895534},
+{"timestamp":1214249444001,"location_long":-89.6209727,"location_lat":-1.38957},
+{"timestamp":1214254820001,"location_long":-89.6210144,"location_lat":-1.38957}
 ...
 ```
 
@@ -416,50 +440,43 @@ This example contains the minimum information needed to obtain data: a study ID,
 and a sensor type. You can make several additional variations to this, described below. The timestamps are provided in milliseconds since `1970-01-01 UTC`, and coordinates are in WGS84.
 
 #### Get event data for multiple individuals
-`https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers[]=4262-84830876&individual_local_identifiers[]=1163-1163&individual_local_identifiers[]=2131-2131&sensor_type=gps`
+`https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&individual_local_identifiers=1163-1163&individual_local_identifiers=2131-2131&sensor_type=gps`
 
-Results will be in the same format as in the previous example, with a header like the first line in the previous example added before the first row of data for each individual. You can also use the internal Movebank animal identifiers (which cannot be changed by users) by replacing `individual_local_identifier`s with `individual_id`s.
+Results will be in the same format as in the previous example, with a header like the first line in the previous example added before the first row of data for each individual. 
 
 #### Get event data for a specified number of events
-`https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers[]=4262-84830876&max_events_per_individual=10&sensor_type=gps`
+`https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&max_events_per_individual=10&sensor_type=gps`
 
 Results will be in the same format, but will be restricted to the most recent 10 records per individual. This can be used to reduce the page loading time.
 
 #### Get event data for a specified time period
-`https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers[]=4262-84830876&timestamp_start=1213358400000&timestamp_end=1213617600000&sensor_type=gps`
+`https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&timestamp_start=1213358400000&timestamp_end=1213617600000&sensor_type=gps`
 
 Results will be in the same format, but will be restricted to events within the specified time range. This can be used to highlight (or exclude) a certain portion of a track or to reduce the page loading time. The timestamps must be provided in milliseconds since 1970-01-01 (converters are available online). All dates in Movebank are stored in UTC. Here we obtain locations collected between `2008-6-13 12:00` and `2008-6-16 12:00`.
 
 #### Get event data with additional event-level attributes
-`https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers[]=4262-84830876&sensor_type=gps&attributes=timestamp,location_long,location_lat,ground_speed,heading`
+`https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&sensor_type=gps&attributes=timestamp,location_long,location_lat,ground_speed,heading`
 
 Result
 
 ```
-{"individuals":[{"individual_local_identifier":"4262-84830876","individual_taxon_canonical_name":"Phoebastria irrorata","locations":[
-{"timestamp":1212240595000,"location_long":-89.7400582,"location_lat":-1.372675,"timestamp":1212240595000,"location_lat":-1.372675,"ground_speed":0,"location_long":-89.7400582,"heading":0},
-{"timestamp":1212240618999,"location_long":-89.740053,"location_lat":-1.3726544,"timestamp":1212240618999,"location_lat":-1.3726544,"ground_speed":0.03,"location_long":-89.740053,"heading":357.17},
-{"timestamp":1212246021998,"location_long":-89.7400575,"location_lat":-1.3726589,"timestamp":1212246021998,"location_lat":-1.3726589,"ground_speed":0.05,"location_long":-89.7400575,"heading":1.31},
-{"timestamp":1212251449999,"location_long":-89.7400497,"location_lat":-1.3726499,"timestamp":1212251449999,"location_lat":-1.3726499,"ground_speed":0.06,"location_long":-89.7400497,"heading":359.14},
-{"timestamp":1212256913000,"location_long":-89.7400693,"location_lat":-1.3726749,"timestamp":1212256913000,"location_lat":-1.3726749,"ground_speed":0,"location_long":-89.7400693,"heading":317.19},
-…
+{"individuals":[{"study_id":2911040,"individual_local_identifier":"1094-1094","individual_taxon_canonical_name":"Phoebastria irrorata","sensor_type_id":653,"sensor_id":2911314,"individual_id":2911080,"locations":[
+{"timestamp":1214238511999,"location_long":-89.6210002,"location_lat":-1.3895437,"ground_speed":0,"heading":17.04},
+{"timestamp":1214238608998,"location_long":-89.6210024,"location_lat":-1.3895456,"ground_speed":0.83,"heading":351.93},
+{"timestamp":1214244055998,"location_long":-89.6209386,"location_lat":-1.3895534,"ground_speed":0.14,"heading":339.48},
+{"timestamp":1214249444001,"location_long":-89.6209727,"location_lat":-1.38957,"ground_speed":0.28,"heading":99.61},
+{"timestamp":1214254820001,"location_long":-89.6210144,"location_lat":-1.38957,"ground_speed":0.29,"heading":19.66}
+...
 ```
 
-Results will include additional specified attributes if they are available in the dataset.
+Results will include additional specified attributes if they are available in the dataset. To evaluate which attributes are available, see [Get study attributes for a sensor in a study](#get-study-attributes-for-a-sensor-in-a-study).
 
 #### Get event data with all of the specifications described above
-`https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers[]=4262-84830876&individual_local_identifiers[]=1163-1163&individual_local_identifiers[]=2131-2131&max_events_per_individual=10&timestamp_start=1213358400000&timestamp_end=1213617600000&sensor_type=gps&attributes=timestamp,location_long,location_lat,ground_speed,heading`
+`https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&individual_local_identifiers=1163-1163&individual_local_identifiers=2131-2131&max_events_per_individual=10&timestamp_start=1213358400000&timestamp_end=1213617600000&sensor_type=gps&attributes=timestamp,location_long,location_lat,ground_speed,heading`
 
-Result
+These results will combine specifications for individuals, a number of events and time period per individual, and event attributes. As shown here, the specifications provided in the examples can be combined to further define what you want to access. The following is a template summarizing everything we've just described.
 
-```
-{"individuals":[{"individual_local_identifier":"4262-84830876","individual_taxon_canonical_name":"Phoebastria irrorata","locations":[
-{"timestamp":1213563618999,"location_long":-81.0542399,"location_lat":-2.480352,"timestamp":1213563618999,"location_lat":-2.480352,"ground_speed":0.38,"location_long":-81.0542399,"heading":281.8},{"timestamp":1213569055998,"location_long":-81.0604295,"location_lat":-2.4729733,"timestamp":1213569055998,"location_lat":-2.4729733,"ground_speed":0.75,"location_long":-81.0604295,"heading":337.51},{"timestamp":1213574479998,"location_long":-81.0243416,"location_lat":-2.5038063,"timestamp":1213574479998,"location_lat":-2.5038063,"ground_speed":0.16,"location_long":-81.0243416,"heading":65.54},{"timestamp":1213579820999,"location_long":-81.0270371,"location_lat":-2.4921158,"timestamp":1213579820999,"location_lat":-2.4921158,"ground_speed":0.4,"location_long":-81.0270371,"heading":7.86},{"timestamp":1213585247999,"location_long":-81.0242051,"location_lat":-2.4931081,"timestamp":1213585247999,"location_lat":-2.4931081,"ground_speed":0.5,"location_long":-81.0242051,"heading":94.37},{"timestamp":1213590668998,"location_long":-81.0211194,"location_lat":-2.5433086,"timestamp":1213590668998,"location_lat":-2.5433086,"ground_speed":0.54,"location_long":-81.0211194,"heading":21.63},
-```
-
-As shown here, the specifications provided in the examples can be combined to further define what you want to access. The following is a template summarizing everything we've just described.
-
-`https://www.movebank.org/movebank/service/public/json?study_id=<study id>&individual_local_identifiers[]=<animal ID 1>&individual_local_identifiers[]=<animal ID 2 (optional)>&max_events_per_individual=<maximum number of records to access (optional)>&timestamp_start=<timestamp in milliseconds since 1/1/1970 (optional)>&timestamp_end=<timestamp in milliseconds since 1/1/1970 (optional)>&sensor_type=<sensor type>&attributes=<attributes to display in results (optional)>`
+`https://www.movebank.org/movebank/service/public/json?study_id=<study id>&individual_local_identifiers=<animal ID 1>&individual_local_identifiers=<animal ID 2 (optional)>&max_events_per_individual=<maximum number of records to access (optional)>&timestamp_start=<timestamp in milliseconds since 1/1/1970 (optional)>&timestamp_end=<timestamp in milliseconds since 1/1/1970 (optional)>&sensor_type=<sensor type>&attributes=<attributes to display in results (optional)>`
 
 ### Displaying data using Google Maps
 The JSON/JavaScript requests were designed primarily to allow users to access and display mapped Movebank data on external web pages using the Google Maps API. See [Movebank Map Demo](https://github.com/movebank/movebank-map-demo) for example code for maps that pull data from Movebank with JSON requests as described above.
