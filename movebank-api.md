@@ -65,11 +65,11 @@ Local identifiers are unique within but not across studies. If you are combining
 ## Security, data access and authentication
 Access to data is defined by data owners for each study in Movebank following [Movebank's permissions options](https://www.movebank.org/cms/movebank-content/permissions-and-sharing). If no username and password are provided, results will be restricted to data that owners have made publicly available. If a username and password are provided, results will be restricted to data that the user has access to. To access tracking actual data, including for visualization on external websites, the user (or the public) needs permission to download data.
 
-For data that are made available to others, the owners of each study in Movebank specify use conditions in the "License Terms" in the [Study Details](https://www.movebank.org/node/1942#study_details). In addition to user-specified conditions, the [General Movebank Terms of Use](https://www.movebank.org/node/1934) apply.
+For data that are made available to others, the owners of each study in Movebank specify use conditions in the "License Terms" in the [Study Details](https://www.movebank.org/cms/movebank-content/studies-page#study_details). In addition to user-specified conditions, the [General Movebank Terms of Use](https://www.movebank.org/cms/movebank-content/general-movebank-terms-of-use) apply.
 
 To ensure that users are aware of the license terms for each study, users may be required to read and accept these terms of use prior to first downloading the data for a study. Once a user has accepted the terms of use for a study, they will not be required to accept them again unless the study owner changes the terms. These requirements can cause confusion when accessing data using the API. Options for accepting license terms include
-- A user can log in to Movebank and accept the license terms for the study by initiating a [data download](https://www.movebank.org/node/54#download_movebank_data) prior to attempting to access through the API.
-- Data managers can disable the requirement that users accept terms of use by unchecking the "Prompt users to accept license terms" box in the [permissions settings](https://www.movebank.org/node/43) for the study.
+- A user can log in to Movebank and accept the license terms for the study by initiating a [data download](https://www.movebank.org/cms/movebank-content/access-data#download_data_in_movebank_format) prior to attempting to access through the API.
+- Data managers can disable the requirement that users accept terms of use by unchecking the "Prompt users to accept license terms" box in the [permissions settings](https://www.movebank.org/cms/movebank-content/permissions-and-sharing#set_permissions) for the study.
 - Read and accept license terms using the API, as in the following example.
 
 ### Read and accept license terms using curl
@@ -86,7 +86,7 @@ This example uses curl commands in Terminal on a Mac to accept license terms and
 Also see an example in Python [added to this repository](https://github.com/movebank/movebank-api-doc/blob/master/mb_Meschenmoser.py).
 
 ## Accessing the database using HTTP/CSV requests
-The following are examples of how to access information from the Movebank database with HTTP requests. After providing valid credentials, these calls will return CSV files containing the requested information. Note that the results will be based on the information available to the user as defined by access permissions (see above).
+The following are examples of how to access information from the Movebank database with HTTP requests. After providing valid credentials, these calls will return CSV files containing the requested information. Note that the results will be based on the information available to the user as defined by access permissions (see above). If downloaded files have no extension and you are unable to open them, add ".csv" to the filename.
 
 ### Get a list of attribute names
 `https://www.movebank.org/movebank/service/direct-read?attributes`
@@ -130,7 +130,7 @@ Result header
 
 `acknowledgements,citation,create_ts,event_grace_period,go_public_date,go_public_license_type,grants_used,has_quota,i_am_owner,id,is_test,license_terms,license_type,main_location_lat,main_location_long,name,number_of_deployments,number_of_individuals,number_of_tags,principal_investigator_address,principal_investigator_email,principal_investigator_name,study_objective,study_type,suspend_go_public_date,suspend_license_terms,i_can_see_data,there_are_data_which_i_cannot_see,i_have_download_access,i_am_collaborator,study_permission,timestamp_first_deployed_location,timestamp_last_deployed_location,number_of_deployed_locations,taxon_ids,sensor_type_ids`
 
-These results provide the study name (`study`), the study ID (`id`), user-provided study details, calculated study statistics, and information about the user's access [permissions](https://www.movebank.org/node/43). To determine your access rights, filter the list using `i_am_owner`, `i_can_see_data`, `i_have_download_access`,
+These results provide the study name (`study`), the study ID (`id`), user-provided study details, calculated study statistics, and information about the user's access [permissions](https://www.movebank.org/cms/movebank-content/permissions-and-sharing). To determine your access rights, filter the list using `i_am_owner`, `i_can_see_data`, `i_have_download_access`,
 `i_am_collaborator`, `study_permission`, and/or `there_are_data_which_i_cannot_see`. Here 'see' refers to your rights to view tracks in [Movebank](https://www.movebank.org/cms/webapp?gwt_fragment=page=search_map) and not to download data—you will be able to view all studies you can download but not download all studies you can view. You might have permission to see only the study details, view some or all tracks but not download data, or view and download some or all data. Studies you do not have permission to see at all will not be included in the list. Summary statistics about the studies (contained in `number_of_deployments`, `number_of_individuals`, `number_of_tags`, `timestamp_first_deployed_location`, `timestamp_last_deployed_location`, `number_of_deployed_locations`, `taxon_ids`, `sensor_type_ids`) are updated approximately once per day.
 
 #### Get a list of studies for which a user is data manager
@@ -139,7 +139,9 @@ These results provide the study name (`study`), the study ID (`id`), user-provid
 Results will be the same as in the previous example, but filtered for only the studies for which `i_am_owner` contains `TRUE`.
 
 ### Get descriptions of entities in a study
-When you have a certain study of interest, you can access information contained in that study using the study’s Movebank ID (available in [the Study Details](https://www.movebank.org/node/1942#study_details)). You can obtain information for the following entity types: `study`, `individual`, `tag`, `deployment`, `sensor`, `study_attribute` and `event`. The event entity contains actual sensor measurements stored in study attributes, and one or more sensors can be associated with each tag. The deployment, individual, and tag entities contain descriptive information about the animals, tags, and deployments (i.e. of tags on animals) in the study. In Movebank we refer to the latter information as "[reference data](https://www.movebank.org/2381#metadata)". For the examples that follow we will use the study [Galapagos Albatrosses](https://www.movebank.org/panel_embedded_movebank_webapp?gwt_fragment=page=studies,path=study2911040) (study ID 2911040; [Cruz et al. 2013](https://doi.org/10.5441/001/1.3hp3s250)) which is fully available to the public.
+When you have a certain study of interest, you can access information contained in that study using the study’s Movebank ID (available in [the Study Details](https://www.movebank.org/cms/movebank-content/studies-page#study_details)). You can obtain information for the following entity types: `study`, `individual`, `tag`, `deployment`, `sensor`, `study_attribute` and `event`. The event entity contains actual sensor measurements stored in study attributes, and one or more sensors can be associated with each tag. The deployment, individual, and tag entities contain descriptive information about the animals, tags, and deployments (i.e., periods over which tags are attached to animals) in the study. In Movebank we refer to the latter information as [reference data](https://www.movebank.org/cms/movebank-content/mb-data-model#reference_data). Important information about understanding these data are provided [above](#understanding-data-from-movebank).
+
+For the examples that follow we will use the study [Galapagos Albatrosses](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study2911040) (study ID 2911040; [Cruz et al. 2013](https://doi.org/10.5441/001/1.3hp3s250)) which is fully available to the public.
 
 #### Get a description about a study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_id=2911040`
@@ -167,8 +169,6 @@ Result
 |                 |         | 2911111|136              |e-obs GmbH        |      |                |          |                     |                    |     22|
 ...
 ```
-
-Attributes listed in the file include tag descriptors currently in the database. Those that have not been provided by the data owner will be blank. The attribute "local_identifier" contains the user-provided tag IDs (which can be changed by the data owner), and the attribute "id" contains internal identifiers automatically created in the database. Read more above about [understanding data in Movebank](#understanding-data-in-movebank)
 
 #### Get information about animals in a study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=individual&study_id=2911040`
@@ -436,8 +436,7 @@ Result
 ...
 ```
 
-This example contains the minimum information needed to obtain data: a study ID, an animal ID (here the user-provided name),
-and a sensor type. You can make several additional variations to this, described below. The timestamps are provided in milliseconds since `1970-01-01 UTC`, and coordinates are in WGS84.
+This example contains the minimum information needed to obtain data: a study ID, the animal ID defined by the data owner, and a sensor type. You can make several additional variations to this, described below. The timestamps are provided in milliseconds since `1970-01-01 UTC`, and coordinates are in WGS84.
 
 #### Get event data for multiple individuals
 `https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&individual_local_identifiers=1163-1163&individual_local_identifiers=2131-2131&sensor_type=gps`
