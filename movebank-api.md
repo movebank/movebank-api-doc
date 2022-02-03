@@ -73,15 +73,16 @@ To ensure that users are aware of the license terms for each study, users may be
 - Read and accept license terms using the API, as in the following example.
 
 ### Read and accept license terms using curl
-This example uses curl commands in Terminal on a Mac to accept license terms and access data from the published study [(EBD) Lesser Kestrels](https://www.movebank.org/panel_embedded_movebank_webapp?gwt_fragment=page=studies,path=study16615296) ([Hernández-Pliego et al. 2015](https://doi.org/10.5441/001/1.sj8t3r11)).
+This example uses curl commands in Terminal on a Mac to accept license terms and access data from the published study [Galapagos Albatrosses](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study2911040) ([Cruz et al. 2013](https://www.doi.org/10.5441/001/1.3hp3s250)).
+
 1. Submit an http request as described below for a study and user requiring license terms be accepted, saving the terms as license_terms.txt (in html, search for "License Terms:") and specifying cookies to maintain a session in consecutive calls:
-`curl -v -u username:password -c cookies.txt -o license_terms.txt "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=16615296"`
+`curl -v -u username:password -c cookies.txt -o license_terms.txt "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040"`
 
 2. Create and print an md5sum:
 `md5 -r license_terms.txt`
 
 3. Submit an http request for the same study and user again, sending the cookie and including the md5sum (replace ### with the value from step 2):
-`curl -v -u username:password -b cookies.txt -o event_data.csv "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=16615296&license-md5=###"`
+`curl -v -u username:password -b cookies.txt -o event_data.csv "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&license-md5=###"`
 
 Also see an example in Python [added to this repository](https://github.com/movebank/movebank-api-doc/blob/master/mb_Meschenmoser.py).
 
