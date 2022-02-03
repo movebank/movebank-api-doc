@@ -73,10 +73,10 @@ To ensure that users are aware of the license terms for each study, users may be
 - Read and accept license terms using the API, as in the following example.
 
 ### Read and accept license terms using curl
-This example uses curl commands in Terminal on a Mac to accept license terms and access data from the published study [Galapagos Albatrosses](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study2911040) ([Cruz et al. 2013](https://www.doi.org/10.5441/001/1.3hp3s250)).
+This example uses curl commands in Terminal on a Mac to accept license terms and access data from the published study [LifeTrack White Stork Sicily](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study79206236) ([Grasso et al. 2021](https://www.doi.org/10.5441/001/1.4v8q16qf)).
 
 1. Submit an http request as described below for a study and user requiring license terms be accepted, saving the terms as license_terms.txt (in html, search for "License Terms:") and specifying cookies to maintain a session in consecutive calls:
-`curl -v -u username:password -c cookies.txt -o license_terms.txt "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040"`
+`curl -v -u username:password -c cookies.txt -o license_terms.txt "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=79206236"`
 
 2. Create and print an md5sum:
 `md5 -r license_terms.txt`
