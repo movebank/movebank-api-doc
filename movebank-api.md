@@ -82,7 +82,7 @@ This example uses curl commands in Terminal on a Mac to accept license terms and
 `md5 -r license_terms.txt`
 
 3. Submit an http request for the same study and user again, sending the cookie and including the md5sum (replace ### with the value from step 2):
-`curl -v -u username:password -b cookies.txt -o event_data.csv "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&license-md5=###"`
+`curl -v -u username:password -b cookies.txt -o event_data.csv "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=79206236&license-md5=###"`
 
 Also see an example in Python [added to this repository](https://github.com/movebank/movebank-api-doc/blob/master/mb_Meschenmoser.py).
 
