@@ -75,13 +75,13 @@ To ensure that users are aware of the license terms for each study, users may be
 ### Read and accept license terms using curl
 This example uses curl commands in Terminal on a Mac to accept license terms and access data from the published study [LifeTrack White Stork Sicily](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study79206236) ([Grasso et al. 2021](https://www.doi.org/10.5441/001/1.4v8q16qf)).
 
-1. Submit an http request as described below for a study and user requiring license terms be accepted, saving the terms as license_terms.txt (in html, search for "License Terms:") and specifying cookies to maintain a session in consecutive calls:
+1. Submit an http request as described below for a study and user requiring license terms be accepted, saving the terms as license_terms.txt (in html, search for "License Terms:") and specifying cookies to maintain a session in consecutive calls:  
 `curl -v -u username:password -c cookies.txt -o license_terms.txt "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=79206236"`
 
-2. Create and print an md5sum:
-`md5 -r license_terms.txt`
+2. Create and print an md5sum:  
+`md5 -r license_terms.txt` (note: the command on Linux is "md5sum" rather than "md5")
 
-3. Submit an http request for the same study and user again, sending the cookie and including the md5sum (replace ### with the value from step 2):
+3. Submit an http request for the same study and user again, sending the cookie and including the md5sum (replace ### with the value from step 2):  
 `curl -v -u username:password -b cookies.txt -o event_data.csv "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=79206236&license-md5=###"`
 
 Also see an example in Python [added to this repository](https://github.com/movebank/movebank-api-doc/blob/master/mb_Meschenmoser.py).
