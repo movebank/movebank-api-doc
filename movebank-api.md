@@ -27,7 +27,7 @@ Contents
 		- [Get reduced data profile 1: Daily events](#get-reduced-data-profile-1-daily-events)
 		- [Get reduced data profile 2: Long-distance events](#get-reduced-data-profile-2-long-distance-events)
 		- [Get reduced data profile 3: Events for 30 days](#get-reduced-data-profile-3-events-for-30-days)
-		- [Get reduced data profile 4: 0.25-degree events](#get-reduced-data-profile-4-0.25-degree-events)
+		- [Get reduced data profile 4: 0.25-degree events](#get-reduced-data-profile-4-025-degree-events)
 		- [Get reduced event data with taxon](#get-reduced-event-data-with-taxon)
 	- [Other messages you might receive](#other-messages-you-might-receive)
 	- [Accessing the database from R](#accessing-the-database-from-r)
@@ -43,8 +43,7 @@ Contents
 		- [Get JSON reduced data profile 1: Daily events](#get-json-reduced-data-profile-1-daily-events)
 		- [Get JSON reduced data profile 2: Long-distance events](#get-json-reduced-data-profile-2-long-distance-events)
 		- [Get JSON reduced data profile 3: Events for 30 days](#get-json-reduced-data-profile-3-events-for-30-days)
-		- [Get JSON reduced data profile 4: 0.25-degree events](#get-json-reduced-data-profile-4-0.25-degree-events)
-		- [Get JSON reduced event data with taxon](#get-json-reduced-event-data-with-taxon)
+		- [Get JSON reduced data profile 4: 0.25-degree events](#get-json-reduced-data-profile-4-025-degree-events)
 	- [Displaying data using Google Maps](#displaying-data-using-google-maps)
 
 ## Introduction
@@ -453,7 +452,7 @@ Result
 
 This profile is defined as `coordinateTrailingDigits=0.25`. It reduces data to round longitude and latitude to 0.25 degree, with at least 0.25 deg movement in lat or long between consecutive locations.
 
-##### Get reduced event data with taxon
+#### Get reduced event data with taxon
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&individual_local_identifier=4262-84830876&event_reduction_profile=EURING_01&attributes=timestamp,location_lat,location_long,visible,study_id,sensor_type_id,individual_local_identifier,tag_local_identifier,individual_taxon_canonical_name`
 
 Result
