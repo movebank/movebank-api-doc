@@ -23,17 +23,28 @@ Contents
 		- [Get event data for a single sensor type](#get-event-data-for-a-single-sensor-type)
 		- [Get event data for an individual animal](#get-event-data-for-an-individual-animal)
 		- [Get event data for a specified time period](#get-event-data-for-a-specified-time-period)
+	- [Get reduced event data](#get-reduced-event-data)
+		- [Get reduced data profile 1: Daily events](#get-reduced-data-profile-1-daily-events)
+		- [Get reduced data profile 2: Long-distance events](#get-reduced-data-profile-2-long-distance-events)
+		- [Get reduced data profile 3: Events for 30 days](#get-reduced-data-profile-3-events-for-30-days)
+		- [Get reduced data profile 4: 0.25-degree events](#get-reduced-data-profile-4-0.25-degree-events)
+		- [Get reduced event data with taxon](#get-reduced-event-data-with-taxon)
 	- [Other messages you might receive](#other-messages-you-might-receive)
 	- [Accessing the database from R](#accessing-the-database-from-r)
 
 - [Accessing the database using JSON/JavaScript requests](#accessing-the-database-using-jsonjavascript-requests)
 	- [Get public or private data](#get-public-or-private-data)
-	- [Get event data from the study](#get-event-data-from-the-study)
-		- [Get event data for multiple individuals](#get-event-data-for-multiple-individuals)
-		- [Get event data for a specified number of events](#get-event-data-for-a-specified-number-of-events)
-		- [Get event data for a specified time period](#get-event-data-for-a-specified-time-period)
-		- [Get event data with additional event-level attributes](#get-event-data-with-additional-event-level-attributes)
-		- [Get event data with all of the specifications described above](#get-event-data-with-all-of-the-specifications-described-above)
+	- [Get JSON event data from the study](#get-json-event-data-from-the-study)
+		- [Get JSON event data for multiple individuals](#get-json-event-data-for-multiple-individuals)
+		- [Get JSON event data for a specified number of events](#get-json-event-data-for-a-specified-number-of-events)
+		- [Get JSON event data for a specified time period](#get-json-event-data-for-a-specified-time-period)
+		- [Get JSON event data with additional event-level attributes](#get-json-event-data-with-additional-event-level-attributes)
+		- [Get JSON event data with all of the specifications described above](#get-json-event-data-with-all-of-the-specifications-described-above)
+		- [Get JSON reduced data profile 1: Daily events](#get-json-reduced-data-profile-1-daily-events)
+		- [Get JSON reduced data profile 2: Long-distance events](#get-json-reduced-data-profile-2-long-distance-events)
+		- [Get JSON reduced data profile 3: Events for 30 days](#get-json-reduced-data-profile-3-events-for-30-days)
+		- [Get JSON reduced data profile 4: 0.25-degree events](#get-json-reduced-data-profile-4-0.25-degree-events)
+		- [Get JSON reduced event data with taxon](#get-json-reduced-event-data-with-taxon)
 	- [Displaying data using Google Maps](#displaying-data-using-google-maps)
 
 ## Introduction
@@ -73,16 +84,15 @@ To ensure that users are aware of the license terms for each study, users may be
 - Read and accept license terms using the API, as in the following example.
 
 ### Read and accept license terms using curl
-This example uses curl commands in Terminal on a Mac to accept license terms and access data from the published study [LifeTrack White Stork Sicily](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study79206236) ([Grasso et al. 2021](https://www.doi.org/10.5441/001/1.4v8q16qf)).
+This example uses curl commands in Terminal on a Mac to accept license terms and access data from the published study [(EBD) Lesser Kestrels](https://www.movebank.org/panel_embedded_movebank_webapp?gwt_fragment=page=studies,path=study16615296) ([Hernández-Pliego et al. 2015](https://doi.org/10.5441/001/1.sj8t3r11)).
+1. Submit an http request as described below for a study and user requiring license terms be accepted, saving the terms as license_terms.txt (in html, search for "License Terms:") and specifying cookies to maintain a session in consecutive calls:
+`curl -v -u username:password -c cookies.txt -o license_terms.txt "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=16615296"`
 
-1. Submit an http request as described below for a study and user requiring license terms be accepted, saving the terms as license_terms.txt (in html, search for "License Terms:") and specifying cookies to maintain a session in consecutive calls:  
-`curl -v -u username:password -c cookies.txt -o license_terms.txt "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=79206236"`
+2. Create and print an md5sum:
+`md5 -r license_terms.txt`
 
-2. Create and print an md5sum:  
-`md5 -r license_terms.txt` (note: the command on Linux is "md5sum" rather than "md5")
-
-3. Submit an http request for the same study and user again, sending the cookie and including the md5sum (replace ### with the value from step 2):  
-`curl -v -u username:password -b cookies.txt -o event_data.csv "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=79206236&license-md5=###"`
+3. Submit an http request for the same study and user again, sending the cookie and including the md5sum (replace ### with the value from step 2):
+`curl -v -u username:password -b cookies.txt -o event_data.csv "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=16615296&license-md5=###"`
 
 Also see an example in Python [added to this repository](https://github.com/movebank/movebank-api-doc/blob/master/mb_Meschenmoser.py).
 
@@ -364,6 +374,100 @@ Result
 
 Timestamps should be provided in the format `yyyyMMddHHmmssSSS` (see [list of letter meanings](http://fmpp.sourceforge.net/datetimepattern.html)).
 
+### Get reduced event data
+The 'reduced event' APIs allow calls to retrieve tracking data reduced according to 'reduction profiles'. (For REST API calls, additional attributes are provided for datasets < 800 records.) Data reduction can vastly reduce data transfer needs for many uses that do not require other sensor measurements or detailed movement data. Reduction profiles are defined by the following parameters for reducing spatial and temporal resolution:  
+
+* a name to identify the reduction profile
+* minMillisBetweenEvents: minimum milliseconds between consecutive events per individual.
+* minKmBetweenEvents: minimum distance in kilometers between consecutive events per individual.
+* maxDurationDays: only keep the last 'maxDurationDays' days of data per individual.
+* coordinateTrailingDigits: rounding of longitude and latitude and removes duplicates per individual.
+
+Currently there are four profiles defined that reduce data to (1) daily events, (2) movements => 50 km, (3) the last 30 days and (4) events at 0.25-degree precision. The effect of these profiles will depend on the resolution, movement characteristics and temporal range of the source data.
+
+#### Get reduced data profile 1: Daily events
+`https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&individual_local_identifier=4262-84830876&event_reduction_profile=EURING_01`
+
+Result
+
+```
+|timestamp               | location_lat| location_long|visible | study_id| sensor_type_id|individual_local_identifier |tag_local_identifier |
+|:-----------------------|------------:|-------------:|:-------|--------:|--------------:|:---------------------------|:--------------------|
+|2008-05-31 13:29:55.000 |    -1.372675|   -89.7400582|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-01 13:30:25.998 |    -1.372667|   -89.7400507|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-02 15:00:56.998 |   -1.3726722|   -89.7400667|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-03 15:00:57.000 |   -1.3726695|   -89.7400632|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-04 16:30:31.998 |   -1.3726612|   -89.7400312|true    |  2911040|            653|"4262-84830876"             |"147"                |
+```
+
+This profile is defined as `minMillisBetweenEvents=86400000`. It reduces data to at least 24 h between consecutive events.
+
+#### Get reduced data profile 2: Long-distance events
+`https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&individual_local_identifier=4262-84830876&event_reduction_profile=EURING_02`
+
+Result
+
+```
+|timestamp               | location_lat| location_long|visible | study_id| sensor_type_id|individual_local_identifier |tag_local_identifier |
+|:-----------------------|------------:|-------------:|:-------|--------:|--------------:|:---------------------------|:--------------------|
+|2008-05-31 13:29:55.000 |    -1.372675|   -89.7400582|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-13 00:00:34.000 |   -1.3913044|   -89.1932254|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-13 03:01:25.998 |   -1.4728163|   -88.7197687|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-13 07:30:56.998 |   -1.1672979|   -87.6778791|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-13 13:31:27.000 |   -1.0185073|   -87.0377073|true    |  2911040|            653|"4262-84830876"             |"147"                |
+```
+
+This profile is defined as `minKmBetweenEvents=50`. It reduces data to at least 50 km distance between consecutive events.
+
+#### Get reduced data profile 3: Events for 30 days
+`https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&individual_local_identifier=4262-84830876&event_reduction_profile=EURING_03`
+
+Result
+
+```
+|timestamp               | location_lat| location_long|visible | study_id| sensor_type_id|individual_local_identifier |tag_local_identifier |
+|:-----------------------|------------:|-------------:|:-------|--------:|--------------:|:---------------------------|:--------------------|
+|2008-06-06 12:00:40.000 |   -1.3726824|   -89.7400689|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-06 13:30:20.000 |   -1.3726847|   -89.7400775|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-06 15:00:57.000 |   -1.3726712|   -89.7400875|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-06 16:30:18.001 |   -1.3727098|   -89.7400902|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-06 18:00:55.999 |   -1.3726699|   -89.7400544|true    |  2911040|            653|"4262-84830876"             |"147"                |
+```
+
+This profile is defined as `maxDurationDays=30`. It reduces data to only the last 30 days relative to the latest location.
+
+#### Get reduced data profile 4: 0.25-degree events
+`https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&individual_local_identifier=4262-84830876&event_reduction_profile=EURING_04`
+
+Result
+
+```
+|timestamp               | location_lat| location_long|visible | study_id| sensor_type_id|individual_local_identifier |tag_local_identifier |
+|:-----------------------|------------:|-------------:|:-------|--------:|--------------:|:---------------------------|:--------------------|
+|2008-05-31 13:29:55.000 |        -1.25|        -89.75|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-12 15:00:32.000 |         -1.5|        -89.75|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-12 18:00:43.998 |        -1.25|        -89.75|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-12 21:00:55.999 |         -1.5|        -89.75|true    |  2911040|            653|"4262-84830876"             |"147"                |
+|2008-06-12 22:31:19.999 |         -1.5|         -89.5|true    |  2911040|            653|"4262-84830876"             |"147"                |
+```
+
+This profile is defined as `coordinateTrailingDigits=0.25`. It reduces data to round longitude and latitude to 0.25 degree, with at least 0.25 deg movement in lat or long between consecutive locations.
+
+##### Get reduced event data with taxon
+`https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&individual_local_identifier=4262-84830876&event_reduction_profile=EURING_01&attributes=timestamp,location_lat,location_long,visible,study_id,sensor_type_id,individual_local_identifier,tag_local_identifier,individual_taxon_canonical_name`
+
+Result
+
+```
+|timestamp               | location_lat| location_long|visible | study_id| sensor_type_id|individual_local_identifier |tag_local_identifier |individual_taxon_canonical_name |
+|:-----------------------|------------:|-------------:|:-------|--------:|--------------:|:---------------------------|:--------------------|:-------------------------------|
+|2008-05-31 13:29:55.000 |    -1.372675|   -89.7400582|true    |  2911040|            653|"4262-84830876"             |"147"                |"Phoebastria irrorata"          |
+|2008-06-01 13:30:25.998 |    -1.372667|   -89.7400507|true    |  2911040|            653|"4262-84830876"             |"147"                |"Phoebastria irrorata"          |
+|2008-06-02 15:00:56.998 |   -1.3726722|   -89.7400667|true    |  2911040|            653|"4262-84830876"             |"147"                |"Phoebastria irrorata"          |
+|2008-06-03 15:00:57.000 |   -1.3726695|   -89.7400632|true    |  2911040|            653|"4262-84830876"             |"147"                |"Phoebastria irrorata"          |
+|2008-06-04 16:30:31.998 |   -1.3726612|   -89.7400312|true    |  2911040|            653|"4262-84830876"             |"147"                |"Phoebastria irrorata"          |
+```
+
 ### Other messages you might receive
 It may happen that you see the license terms instead of getting the data you have requested. In this case you may get a result like
 
@@ -477,6 +581,74 @@ Results will include additional specified attributes if they are available in th
 These results will combine specifications for individuals, a number of events and time period per individual, and event attributes. As shown here, the specifications provided in the examples can be combined to further define what you want to access. The following is a template summarizing everything we've just described.
 
 `https://www.movebank.org/movebank/service/public/json?study_id=<study id>&individual_local_identifiers=<animal ID 1>&individual_local_identifiers=<animal ID 2 (optional)>&max_events_per_individual=<maximum number of records to access (optional)>&timestamp_start=<timestamp in milliseconds since 1/1/1970 (optional)>&timestamp_end=<timestamp in milliseconds since 1/1/1970 (optional)>&sensor_type=<sensor type>&attributes=<attributes to display in results (optional)>`
+
+#### Get JSON reduced data profile 1: Daily events
+`https://www.movebank.org/movebank/service/public/json?&study_id=2911040&individual_local_identifiers=4262-84830876&sensor_type=gps&event_reduction_profile=EURING_01`
+
+Result
+
+```
+{"individuals":[{"study_id":2911040,"individual_local_identifier":"4262-84830876","individual_taxon_canonical_name":"Phoebastria irrorata","sensor_type_id":653,"sensor_id":2911216,"individual_id":2911062,"locations":[
+{"timestamp":1212240595000,"location_long":-89.7400582,"location_lat":-1.372675},
+{"timestamp":1212327025998,"location_long":-89.7400507,"location_lat":-1.372667},
+{"timestamp":1212418856998,"location_long":-89.7400667,"location_lat":-1.3726722},
+{"timestamp":1212505257000,"location_long":-89.7400632,"location_lat":-1.3726695},
+{"timestamp":1212597031998,"location_long":-89.7400312,"location_lat":-1.3726612}
+...
+```
+
+[Reduced event data](#get-reduced-event-data), limited to at least 24 h between consecutive events.
+
+#### Get JSON reduced data profile 2: Long-distance events
+`https://www.movebank.org/movebank/service/public/json?&study_id=2911040&individual_local_identifiers=4262-84830876&sensor_type=gps&event_reduction_profile=EURING_02`
+
+Result
+
+```
+{"individuals":[{"study_id":2911040,"individual_local_identifier":"4262-84830876","individual_taxon_canonical_name":"Phoebastria irrorata","sensor_type_id":653,"sensor_id":2911216,"individual_id":2911062,"locations":[
+{"timestamp":1212240595000,"location_long":-89.7400582,"location_lat":-1.372675},
+{"timestamp":1213315234000,"location_long":-89.1932254,"location_lat":-1.3913044},
+{"timestamp":1213326085998,"location_long":-88.7197687,"location_lat":-1.4728163},
+{"timestamp":1213342256998,"location_long":-87.6778791,"location_lat":-1.1672979},
+{"timestamp":1213363887000,"location_long":-87.0377073,"location_lat":-1.0185073},
+...
+```
+
+[Reduced event data](#get-reduced-event-data), limited to at least 50 km distance between consecutive events.
+
+#### Get JSON reduced data profile 3: Events for 30 days
+`https://www.movebank.org/movebank/service/public/json?&study_id=2911040&individual_local_identifiers=4262-84830876&sensor_type=gps&event_reduction_profile=EURING_03`
+
+Result
+
+```
+{"individuals":[{"study_id":2911040,"individual_local_identifier":"4262-84830876","individual_taxon_canonical_name":"Phoebastria irrorata","sensor_type_id":653,"sensor_id":2911216,"individual_id":2911062,"locations":[
+{"timestamp":1212753640000,"location_long":-89.7400689,"location_lat":-1.3726824},
+{"timestamp":1212759020000,"location_long":-89.7400775,"location_lat":-1.3726847},
+{"timestamp":1212764457000,"location_long":-89.7400875,"location_lat":-1.3726712},
+{"timestamp":1212769818001,"location_long":-89.7400902,"location_lat":-1.3727098},
+{"timestamp":1212775255999,"location_long":-89.7400544,"location_lat":-1.3726699},
+...
+```
+
+[Reduced event data](#get-reduced-event-data), limited to only the last 30 days relative to the latest location.
+
+#### Get JSON reduced data profile 4: 0.25-degree events
+`https://www.movebank.org/movebank/service/public/json?&study_id=2911040&individual_local_identifiers=4262-84830876&sensor_type=gps&event_reduction_profile=EURING_04`
+
+Result
+
+```
+{"individuals":[{"study_id":2911040,"individual_local_identifier":"4262-84830876","individual_taxon_canonical_name":"Phoebastria irrorata","sensor_type_id":653,"sensor_id":2911216,"individual_id":2911062,"locations":[
+{"timestamp":1212240595000,"location_long":-89.75,"location_lat":-1.25},
+{"timestamp":1213282832000,"location_long":-89.75,"location_lat":-1.5},
+{"timestamp":1213293643998,"location_long":-89.75,"location_lat":-1.25},
+{"timestamp":1213304455999,"location_long":-89.75,"location_lat":-1.5},
+{"timestamp":1213309879999,"location_long":-89.5,"location_lat":-1.5}
+...
+```
+
+[Reduced event data](#get-reduced-event-data), limited to round longitude and latitude to 0.25 degree, with at least 0.25 deg movement in lat or long between consecutive locations.
 
 ### Displaying data using Google Maps
 The JSON/JavaScript requests were designed primarily to allow users to access and display mapped Movebank data on external web pages using the Google Maps API. See [Movebank Map Demo](https://github.com/movebank/movebank-map-demo) for example code for maps that pull data from Movebank with JSON requests as described above.
