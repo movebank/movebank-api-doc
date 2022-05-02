@@ -4,6 +4,7 @@ Contents
 - [Introduction](#introduction)
 - [Security, data access and authentication](#security-data-access-and-authentication)
     - [Read and accept license terms using curl](#read-and-accept-license-terms-using-curl)
+    - [Authenticate by token](#authenticate-by-token)
 - [Accessing the database using HTTP/CSV requests](#accessing-the-database-using-httpcsv-requests)
 	- [Get a list of attribute names](#get-a-list-of-attribute-names)
 	- [Get descriptions of entities in the database](#get-descriptions-of-entities-in-the-database)
@@ -94,6 +95,13 @@ This example uses curl commands in Terminal on a Mac to accept license terms and
 `curl -v -u username:password -b cookies.txt -o event_data.csv "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=16615296&license-md5=###"`
 
 Also see an example in Python [added to this repository](https://github.com/movebank/movebank-api-doc/blob/master/mb_Meschenmoser.py).
+
+### Authenticate by token
+1. Request a token:
+`curl --user "username:password" "https://www.movebank.org/movebank/service/direct-read?service=request-token"`
+
+2. Use the token to request data:
+`curl "https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=16615296&sensor_type=gps&api-token=<API-TOKEN>" > data-token.csv`
 
 ## Accessing the database using HTTP/CSV requests
 The following are examples of how to access information from the Movebank database with HTTP requests. After providing valid credentials, these calls will return CSV files containing the requested information. Note that the results will be based on the information available to the user as defined by access permissions (see above). If downloaded files have no extension and you are unable to open them, add ".csv" to the filename.
