@@ -154,11 +154,11 @@ Result header
 These results provide the study name (`study`), the study's database ID (`id`), owner-provided study details, calculated study statistics, and information about the access [permissions](https://www.movebank.org/cms/movebank-content/permissions-and-sharing) of the user credentials used for the request. Here are some tips to interpreting the results, in particular if you are looking for studies and researchers that could be relevant to a particular project:
 
 * For definitions see [http://vocab.nerc.ac.uk/collection/MVB](http://vocab.nerc.ac.uk/collection/MVB). 
-* You can create a link to a study page in Movebank using the `id`, e.g., here for study 1338487915: https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study1338487915
-* Summary statistics about the studies (contained in `number_of_deployments`, `number_of_individuals`, `number_of_tags`, `timestamp_first_deployed_location`, `timestamp_last_deployed_location`, `number_of_deployed_locations`, `taxon_ids`, `sensor_type_ids`) are updated approximately once per day. 
+* You can create a link to a study page in Movebank using the `id`, e.g., for study [1338487915](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study1338487915).
+* Summary statistics about the studies, contained in `number_of_deployments`, `number_of_individuals`, `number_of_tags`, `timestamp_first_deployed_location`, `timestamp_last_deployed_location`, `number_of_deployed_locations`, `taxon_ids`, `sensor_type_ids`, are updated approximately once per day. 
 * If `number_of_deployments` is empty but `number_of_tags` is not, this can mean the owner has uploaded data but hasn't yet defined deployments on animals. [See instructions for the owner to add deployments.](https://www.movebank.org/cms/movebank-content/upload-qc#add_deployments)
-* If `taxon_ids` is empty but `number_of_individuals` is not, this means the owner has created animals but has not defined the species. If you are searching for specific species or taxa, we recommend also searching the table for common names that are usually stored in the `name` `study_objective`. [See instructions for the owner to assign taxa to animals.](https://www.movebank.org/cms/movebank-content/upload-qc#add_missing_species)
-* If `timestamp_last_deployed_location` is in the future, this can indicate that tags have sent false timestamps through a live feed (i.e., the incorrect timestamp has been accurately received and imported from the tag) or that the owner mapped the timestamp format incorrectly when importing data files. See instructions for the owner to flag outliers [manually](https://www.movebank.org/cms/movebank-content/event-editor#manually_mark_outliers) or [using filters](https://www.movebank.org/cms/movebank-content/data-filters) or [fix incorrectly mapped values](https://www.movebank.org/cms/movebank-content/upload-qc#fix_incorrectly_mapped_values).
+* If `taxon_ids` is empty but `number_of_individuals` is not, this means the owner has created animals but has not defined the species. If you are searching for specific species or taxa, we recommend also searching the table for common names that are usually stored in the `name` or `study_objective`. [See instructions for the owner to assign taxa to animals.](https://www.movebank.org/cms/movebank-content/upload-qc#add_missing_species)
+* If `timestamp_last_deployed_location` is in the future, this can indicate that tags have sent false timestamps through a live feed (i.e., the incorrect timestamp has been accurately received and imported from the tag) or that the owner mapped the timestamp format incorrectly when importing data files. See instructions for the owner to flag outliers [manually](https://www.movebank.org/cms/movebank-content/event-editor#manually_mark_outliers) or [using filters](https://www.movebank.org/cms/movebank-content/data-filters) and to [fix incorrectly mapped values](https://www.movebank.org/cms/movebank-content/upload-qc#fix_incorrectly_mapped_values).
 * The `principal_investigator_email` is only provided in cases that the PI is not assigned to a Movebank account. See [Security, access permission and authentication](#security-data-access-and-authentication) for more about contacting data owners.
 
 ### Get a list of studies based on access permission
@@ -166,23 +166,23 @@ You can filter the list of studies based on access, as set by the owner of each 
 `i_am_collaborator`, `study_permission`, and/or `there_are_data_which_i_cannot_see`. Here 'see' refers only to your rights to view tracks on the Movebank [Tracking Data Map](https://www.movebank.org/cms/webapp?gwt_fragment=page=search_map). You might have permission to see only the study details, view some or all tracks but not download data, or view and download some or all data. Studies you do not have permission to see at all will not be included in the list. You can [contact data owners](https://www.movebank.org/cms/movebank-content/access-data#obtain_access_to_movebank_data) directly to propose data uses and request data sharing.
 
 #### Get a list of studies for which the user is Data Manager or Collaborator
+With both of these requests, the list of studies will be filtered to those for which the user is a Data Manager.
+
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_am_owner=true`
 
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_permission=data_manager`
 
-With both of these requests, the list of studies will be filtered to those for which the user is a Data Manager.
-
-`https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_am_collaborator=true` (can also be a data manager)
-
 This list of studies will be filtered to those for which the user is a Collaborator.
 
-`https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_permission=collaborator`
+`https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_am_collaborator=true`
 
 This list of studies will be filtered to those for which the user is a Collaborator but not a Data Manager.
 
-`https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_permission=data_manager,collaborator`
+`https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_permission=collaborator`
 
 This list of studies will be filtered to those for which the user is a Data Manager and/or Collaborator.
+
+`https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_permission=data_manager,collaborator`
 
 #### Get a list of studies for which the user can download data
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_have_download_access=true`
