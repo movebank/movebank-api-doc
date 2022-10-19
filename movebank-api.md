@@ -2,15 +2,18 @@ Movebank REST API: Description of download interface to build calls to the Moveb
 
 Contents
 - [Introduction](#introduction)
-- [Security, data access and authentication](#security-data-access-and-authentication)
+- [Security, access permission and authentication](#security-data-access-and-authentication)
     - [Read and accept license terms using curl](#read-and-accept-license-terms-using-curl)
     - [Authenticate by token](#authenticate-by-token)
 - [Accessing the database using HTTP/CSV requests](#accessing-the-database-using-httpcsv-requests)
-	- [Get a list of attribute names](#get-a-list-of-attribute-names)
 	- [Get descriptions of entities in the database](#get-descriptions-of-entities-in-the-database)
+		- [Get a list of attributes](#get-a-list-of-attributes)
 		- [Get a list of sensor types](#get-a-list-of-sensor-types)
 		- [Get a list of studies](#get-a-list-of-studies)
-		- [Get a list of studies a user is data manager for](#get-a-list-of-studies-a-user-is-data-manager-for)
+	- [Get a list of studies based on access permission](#get-a-list-of-studies-based-on-access-permission)
+		- [Get a list of studies for which the user is Data Manager or Collaborator](#get-a-list-of-studies-for-which-the-user-is-Data-Manager-or-Collaborator)
+		- [Get a list of studies for which the user can download data](#get-a-list-of-studies-for-which-the-user-can-download-data)
+		- [Get a list of studies for which the user can view data](#get-a-list-of-studies-for-which-the-user-can-view-data)
 	- [Get descriptions of entities in a study](#get-descriptions-of-entities-in-a-study)
 		- [Get a description about a study](#get-a-description-about-a-study)
 		- [Get information about tags in a study](#get-information-about-tags-in-a-study)
@@ -32,7 +35,6 @@ Contents
 		- [Get reduced event data with taxon](#get-reduced-event-data-with-taxon)
 	- [Other messages you might receive](#other-messages-you-might-receive)
 	- [Accessing the database from R](#accessing-the-database-from-r)
-
 - [Accessing the database using JSON/JavaScript requests](#accessing-the-database-using-jsonjavascript-requests)
 	- [Get public or private data](#get-public-or-private-data)
 	- [Get JSON event data from the study](#get-json-event-data-from-the-study)
@@ -73,8 +75,8 @@ Local identifiers are unique within but not across studies. If you are combining
 
 **Outliers:** Event records, most commonly location estimates, can be assigned as outliers in Movebank by data owners and providers using several different tools and data attributes. The results of all outlier management steps are summarized in the [`visible`](http://vocab.nerc.ac.uk/collection/MVB/current/MVB000209/) attribute. We recommend including the `visible` attribute in event-level requests using the examples below, in order to retain this information and the ability to exclude flagged outliers from subsequent use if desired.
 
-## Security, data access and authentication
-Access to data is defined by data owners for each study in Movebank following [Movebank's permissions options](https://www.movebank.org/cms/movebank-content/permissions-and-sharing). If no username and password are provided, results will be restricted to data that owners have made publicly available. If a username and password are provided, results will be restricted to data that the user has access to. To access tracking actual data, including for visualization on external websites, the user (or the public) needs permission to download data.
+## Security, access permission and authentication
+Access to data is defined by data owners through their [Permissions settings](https://www.movebank.org/cms/movebank-content/permissions-and-sharing) for each study in Movebank. If no username and password are provided, results will be restricted to data that owners have made publicly available. If a username and password are provided, results will be restricted to data that the user has access to. To access tracking actual data, including for visualization on external websites, the user (or the public) needs permission to download data. To request access to data, you can [contact the study PI or Contact through Movebank](https://www.movebank.org/cms/movebank-content/access-data#request_to_use_data_in_movebank) and read [advice on running collaborations using Movebank](https://www.movebank.org/cms/movebank-content/collaborations).
 
 For data that are made available to others, the owners of each study in Movebank specify use conditions in the "License Terms" in the [Study Details](https://www.movebank.org/cms/movebank-content/studies-page#study_details). In addition to user-specified conditions, the [General Movebank Terms of Use](https://www.movebank.org/cms/movebank-content/general-movebank-terms-of-use) apply.
 
@@ -106,13 +108,13 @@ Also see an example in Python [added to this repository](https://github.com/move
 ## Accessing the database using HTTP/CSV requests
 The following are examples of how to access information from the Movebank database with HTTP requests. After providing valid credentials, these calls will return CSV files containing the requested information. Note that the results will be based on the information available to the user as defined by access permissions (see above). If downloaded files have no extension and you are unable to open them, add ".csv" to the filename.
 
-### Get a list of attribute names
-`https://www.movebank.org/movebank/service/direct-read?attributes`
-
-This will open a list of available attribute names by entity type that can be used to further specify the example queries below.
-
 ### Get descriptions of entities in the database
 You may want to query general information about what is contained in Movebank. You can obtain information about the following entity types in the database prior to specifying a specific study: study, tag_type, taxon. Note that the taxonomy in Movebank comes from [the Integrated Taxonomic Information System](https://www.itis.gov/) (ITIS).
+
+#### Get a list of attributes
+`https://www.movebank.org/movebank/service/direct-read?attributes`
+
+This will open a list of available attribute names by entity type that can be used to further specify the example queries below. For definitions see [http://vocab.nerc.ac.uk/collection/MVB](http://vocab.nerc.ac.uk/collection/MVB).
 
 #### Get a list of sensor types
 `https://www.movebank.org/movebank/service/direct-read?entity_type=tag_type`
@@ -122,21 +124,22 @@ Result
 ```
 | description   | external_id               | id         | is_location_sensor   | name                      |
 | ------------- | ------------------------- | ---------- | -------------------- | ------------------------- |
-|               | bird-ring                 | 397        | TRUE                 | Bird Ring                 |
-|               | gps                       | 653        | TRUE                 | GPS                       |
-|               | radio-transmitter         | 673        | TRUE                 | Radio Transmitter         |
-|               | argos-doppler-shift       | 82798      | TRUE                 | Argos Doppler Shift       |
-|               | natural-mark              | 2365682    | TRUE                 | Natural Mark              |
-|               | acceleration              | 2365683    | FALSE                | Acceleration              |
-|               | solar-geolocator          | 3886361    | TRUE                 | Solar Geolocator          |
-|               | accessory-measurements    | 7842954    | FALSE                | Accessory Measurements    |
-|               | solar-geolocator-raw      | 9301403    | FALSE                | Solar Geolocator Raw      |
-|               | barometer                 | 77740391   | FALSE                | Barometer                 |
-|               | magnetometer              | 77740402   | FALSE                | Magnetometer              |
-|               | orientation               | 819073350  | FALSE                | Orientation               |
-|               | solar-geolocator-twilight | 914097241  | FALSE                | Solar Geolocator Twilight |
-|               | acoustic-telemetry        | 1239574236 | FALSE                | Acoustic Telemetry        |
-|               | gyroscope                 | 1297673380 | FALSE                | Gyroscope                 |
+|               | bird-ring                 | 397        | true                 | Bird Ring                 |
+|               | gps                       | 653        | true                 | GPS                       |
+|               | radio-transmitter         | 673        | true                 | Radio Transmitter         |
+|               | argos-doppler-shift       | 82798      | true                 | Argos Doppler Shift       |
+|               | natural-mark              | 2365682    | true                 | Natural Mark              |
+|               | acceleration              | 2365683    | false                | Acceleration              |
+|               | solar-geolocator          | 3886361    | true                 | Solar Geolocator          |
+|               | accessory-measurements    | 7842954    | false                | Accessory Measurements    |
+|               | solar-geolocator-raw      | 9301403    | false                | Solar Geolocator Raw      |
+|               | barometer                 | 77740391   | false                | Barometer                 |
+|               | magnetometer              | 77740402   | false                | Magnetometer              |
+|               | orientation               | 819073350  | false                | Orientation               |
+|               | solar-geolocator-twilight | 914097241  | false                | Solar Geolocator Twilight |
+|               | acoustic-telemetry        | 1239574236 | false                | Acoustic Telemetry        |
+|               | gyroscope                 | 1297673380 | false                | Gyroscope                 |
+|               | heart-rate                | 2206221896 | false                | Heart Rate                |
 ```
 
 From this you can see that the sensor type ID for GPS data is 653 and that the “accessory measurements” sensor does not include location information.
@@ -148,13 +151,48 @@ Result header
 
 `acknowledgements,citation,go_public_date,grants_used,has_quota,i_am_owner,id,is_test,license_terms,license_type,main_location_lat,main_location_long,name,number_of_deployments,number_of_individuals,number_of_tags,principal_investigator_address,principal_investigator_email,principal_investigator_name,study_objective,study_type,suspend_license_terms,i_can_see_data,there_are_data_which_i_cannot_see,i_have_download_access,i_am_collaborator,study_permission,timestamp_first_deployed_location,timestamp_last_deployed_location,number_of_deployed_locations,taxon_ids,sensor_type_ids,contact_person_name`
 
-These results provide the study name (`study`), the study's database ID (`id`), owner-provided study details, calculated study statistics, and information about the access [permissions](https://www.movebank.org/cms/movebank-content/permissions-and-sharing) of the user credentials used for the request. Summary statistics about the studies (contained in `number_of_deployments`, `number_of_individuals`, `number_of_tags`, `timestamp_first_deployed_location`, `timestamp_last_deployed_location`, `number_of_deployed_locations`, `taxon_ids`, `sensor_type_ids`) are updated approximately once per day. To determine your access rights, filter the list using `i_am_owner`, `i_can_see_data`, `i_have_download_access`,
-`i_am_collaborator`, `study_permission`, and/or `there_are_data_which_i_cannot_see`. Here 'see' refers to your rights to view tracks in [Movebank](https://www.movebank.org/cms/webapp?gwt_fragment=page=search_map) and not to download data—you will be able to view all studies you can download but not download all studies you can view. You might have permission to see only the study details, view some or all tracks but not download data, or view and download some or all data. Studies you do not have permission to see at all will not be included in the list. You can [contact data owners](https://www.movebank.org/cms/movebank-content/access-data#obtain_access_to_movebank_data) directly to propose data uses and request data sharing.
+These results provide the study name (`study`), the study's database ID (`id`), owner-provided study details, calculated study statistics, and information about the access [permissions](https://www.movebank.org/cms/movebank-content/permissions-and-sharing) of the user credentials used for the request. Here are some tips to interpreting the results, in particular if you are looking for studies and researchers that could be relevant to a particular project:
 
-#### Get a list of studies for which a user is data manager
+* For definitions see [http://vocab.nerc.ac.uk/collection/MVB](http://vocab.nerc.ac.uk/collection/MVB). 
+* You can create a link to a study page in Movebank using the `id`, e.g., here for study 1338487915: https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study1338487915
+* Summary statistics about the studies (contained in `number_of_deployments`, `number_of_individuals`, `number_of_tags`, `timestamp_first_deployed_location`, `timestamp_last_deployed_location`, `number_of_deployed_locations`, `taxon_ids`, `sensor_type_ids`) are updated approximately once per day. 
+* If `number_of_deployments` is empty but `number_of_tags` is not, this can mean the owner has uploaded data but hasn't yet defined deployments on animals. [See instructions for the owner to add deployments.](https://www.movebank.org/cms/movebank-content/upload-qc#add_deployments)
+* If `taxon_ids` is empty but `number_of_individuals` is not, this means the owner has created animals but has not defined the species. If you are searching for specific species or taxa, we recommend also searching the table for common names that are usually stored in the `name` `study_objective`. [See instructions for the owner to assign taxa to animals.](https://www.movebank.org/cms/movebank-content/upload-qc#add_missing_species)
+* If `timestamp_last_deployed_location` is in the future, this can indicate that tags have sent false timestamps through a live feed (i.e., the incorrect timestamp has been accurately received and imported from the tag) or that the owner mapped the timestamp format incorrectly when importing data files. See instructions for the owner to flag outliers [manually](https://www.movebank.org/cms/movebank-content/event-editor#manually_mark_outliers) or [using filters](https://www.movebank.org/cms/movebank-content/data-filters) or [fix incorrectly mapped values](https://www.movebank.org/cms/movebank-content/upload-qc#fix_incorrectly_mapped_values).
+* The `principal_investigator_email` is only provided in cases that the PI is not assigned to a Movebank account. See [Security, access permission and authentication](#security-data-access-and-authentication) for more about contacting data owners.
+
+### Get a list of studies based on access permission
+You can filter the list of studies based on access, as set by the owner of each study in its [Permissions settings](https://www.movebank.org/cms/movebank-content/permissions-and-sharing). To determine your access rights, filter the list using `i_am_owner`, `i_can_see_data`, `i_have_download_access`,
+`i_am_collaborator`, `study_permission`, and/or `there_are_data_which_i_cannot_see`. Here 'see' refers only to your rights to view tracks on the Movebank [Tracking Data Map](https://www.movebank.org/cms/webapp?gwt_fragment=page=search_map). You might have permission to see only the study details, view some or all tracks but not download data, or view and download some or all data. Studies you do not have permission to see at all will not be included in the list. You can [contact data owners](https://www.movebank.org/cms/movebank-content/access-data#obtain_access_to_movebank_data) directly to propose data uses and request data sharing.
+
+#### Get a list of studies for which the user is Data Manager or Collaborator
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_am_owner=true`
 
-Results will be the same as in the previous example, but filtered for only the studies for which `i_am_owner` contains `TRUE`.
+`https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_permission=data_manager`
+
+With both of these requests, the list of studies will be filtered to those for which the user is a Data Manager.
+
+`https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_am_collaborator=true` (can also be a data manager)
+
+This list of studies will be filtered to those for which the user is a Collaborator.
+
+`https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_permission=collaborator`
+
+This list of studies will be filtered to those for which the user is a Collaborator but not a Data Manager.
+
+`https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_permission=data_manager,collaborator`
+
+This list of studies will be filtered to those for which the user is a Data Manager and/or Collaborator.
+
+#### Get a list of studies for which the user can download data
+`https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_have_download_access=true`
+
+This list of studies will be filtered to those for which the user has permission to download some or all data. This includes studies with publicly available data, studies for which the user is a Data Manager, and studies for which the user is a Collaborator with download access.
+
+#### Get a list of studies for which the user can view data
+`https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_can_see_data=true`
+
+The list of studies will be filtered to those for which the user has permission to view data on the [Tracking Data Map](https://www.movebank.org/cms/webapp?gwt_fragment=page=search_map).
 
 ### Get descriptions of entities in a study
 When you have a certain study of interest, you can access information contained in that study using the study’s Movebank ID (available in [the Study Details](https://www.movebank.org/cms/movebank-content/studies-page#study_details)). You can obtain information for the following entity types: `study`, `individual`, `tag`, `deployment`, `sensor`, `study_attribute` and `event`. The event entity contains actual sensor measurements stored in study attributes, and one or more sensors can be associated with each tag. The deployment, individual, and tag entities contain descriptive information about the animals, tags, and deployments (i.e., periods over which tags are attached to animals) in the study. In Movebank we refer to the latter information as [reference data](https://www.movebank.org/cms/movebank-content/mb-data-model#reference_data). Important information about understanding these data are provided [above](#understanding-data-from-movebank).
@@ -501,7 +539,7 @@ If you request data that you do not have permission to see, you will get a messa
 ```
 
 ### Accessing the database from R
-The HTTP/CSV requests can be used to access Movebank data from R. [The R package `move`](http://cran.r-project.org/web/packages/move/index.html) provides flexible options for browsing and visualizing data from Movebank in R using the REST API. In addition, [the package source files](https://r-forge.r-project.org/scm/viewvc.php/pkg/move/R/WebImport.R?view=markup&root=move) provide information that can be used to access Movebank from R without the package.
+The HTTP/CSV requests can be used to access Movebank data from R. [The R package `move`](http://cran.r-project.org/web/packages/move/index.html) provides flexible options for browsing and accessing data from Movebank in R using the REST API. 
 
 ## Accessing the database using JSON/JavaScript requests
 The following are examples for how to access Movebank data using JSON requests. This is currently designed primarily to allow tracking data to be displayed on external maps using the Google Maps API (see below). You will need the relevant study ID number and sensor type description in the database to access data (see above).
