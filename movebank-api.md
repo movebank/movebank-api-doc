@@ -571,7 +571,7 @@ $context = stream_context_create(array(
 
 For non-public data, use the example above to modify your requests that use the examples below.
 
-### Get event data from the study
+### Get JSON event data from the study
 `https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&sensor_type=gps`
 
 Result
@@ -588,22 +588,22 @@ Result
 
 This example contains the minimum information needed to obtain data: a study ID, the animal ID defined by the data owner, and a sensor type. You can make several additional variations to this, described below. The timestamps are provided in milliseconds since `1970-01-01 UTC`, and coordinates are in WGS84.
 
-#### Get event data for multiple individuals
+#### Get JSON event data for multiple individuals
 `https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&individual_local_identifiers=1163-1163&individual_local_identifiers=2131-2131&sensor_type=gps`
 
 Results will be in the same format as in the previous example, with a header like the first line in the previous example added before the first row of data for each individual. 
 
-#### Get event data for a specified number of events
+#### Get JSON event data for a specified number of events
 `https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&max_events_per_individual=10&sensor_type=gps`
 
 Results will be in the same format, but will be restricted to the most recent 10 records per individual. This can be used to reduce the page loading time.
 
-#### Get event data for a specified time period
+#### Get JSON event data for a specified time period
 `https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&timestamp_start=1213358400000&timestamp_end=1213617600000&sensor_type=gps`
 
 Results will be in the same format, but will be restricted to events within the specified time range. This can be used to highlight (or exclude) a certain portion of a track or to reduce the page loading time. The timestamps must be provided in milliseconds since 1970-01-01 (converters are available online). All dates in Movebank are stored in UTC. Here we obtain locations collected between `2008-6-13 12:00` and `2008-6-16 12:00`.
 
-#### Get event data with additional event-level attributes
+#### Get JSON event data with additional event-level attributes
 `https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&sensor_type=gps&attributes=timestamp,location_long,location_lat,ground_speed,heading`
 
 Result
@@ -620,7 +620,7 @@ Result
 
 Results will include additional specified attributes if they are available in the dataset. To evaluate which attributes are available, see [Get study attributes for a sensor in a study](#get-study-attributes-for-a-sensor-in-a-study).
 
-#### Get event data with all of the specifications described above
+#### Get JSON event data with all of the specifications described above
 `https://www.movebank.org/movebank/service/public/json?study_id=2911040&individual_local_identifiers=4262-84830876&individual_local_identifiers=1163-1163&individual_local_identifiers=2131-2131&max_events_per_individual=10&timestamp_start=1213358400000&timestamp_end=1213617600000&sensor_type=gps&attributes=timestamp,location_long,location_lat,ground_speed,heading`
 
 These results will combine specifications for individuals, a number of events and time period per individual, and event attributes. As shown here, the specifications provided in the examples can be combined to further define what you want to access. The following is a template summarizing everything we've just described.
