@@ -114,7 +114,7 @@ You may want to query general information about what is contained in Movebank. Y
 #### Get a list of attributes
 `https://www.movebank.org/movebank/service/direct-read?attributes`
 
-This will open a list of available attribute names by entity type that can be used to further specify the example queries below. For definitions see [http://vocab.nerc.ac.uk/collection/MVB](http://vocab.nerc.ac.uk/collection/MVB).
+This will open a list of available attribute names by entity type that can be used to further specify the example queries below. For definitions see [http://vocab.nerc.ac.uk/collection/MVB](http://vocab.nerc.ac.uk/collection/MVB). Note that the attributes id and local_identifier exist for the tag, individual and deployment entities. For event queries, use aliases with entity prefixes (e.g., individual_local_identifier).
 
 #### Get a list of sensor types
 `https://www.movebank.org/movebank/service/direct-read?entity_type=tag_type`
@@ -305,7 +305,7 @@ Result
 |  2911040|            653|"visible"                           |"boolean"  |
 ```
 
-These are the event-level attributes associated with the sensor in this study. This information can help you evaluate whether a study might be relevant to a given research question, or which event attributes to include in requests for event data.
+These are the event-level attributes associated with the sensor in this study. This information can help you evaluate whether a study might be relevant to a given research question, or which event attributes to include in requests for event data. In addition to the attributes returned in this request, the following attributes are present for all events: individual_id, deployment_id, tag_id, study_id, sensor_type_id, individual_local_identifier, tag_local_identifier, individual_taxon_canonical_name
 
 ### Get event data from a study
 `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040`
