@@ -27,6 +27,7 @@ Contents
 		- [Get event data for a single sensor type](#get-event-data-for-a-single-sensor-type)
 		- [Get event data for an individual animal](#get-event-data-for-an-individual-animal)
 		- [Get event data for a specified time period](#get-event-data-for-a-specified-time-period)
+		- [Get GPS data for multiple individuals with select attributes](#get-gps-data-for-multiple-individuals-with-select-attributes)
 	- [Get reduced event data](#get-reduced-event-data)
 		- [Get reduced data profile 1: Daily events](#get-reduced-data-profile-1-daily-events)
 		- [Get reduced data profile 2: Long-distance events](#get-reduced-data-profile-2-long-distance-events)
@@ -414,6 +415,22 @@ Result
 |2008-06-04 13:30:45.000 |             |              |       2911060| 2911109|
 |2008-06-04 13:30:45.000 |             |              |       2911064| 2911131|
 |2008-06-04 13:30:45.000 |             |              |       2911065| 2911134|
+...
+```
+
+#### Get GPS data for multiple individuals with select attributes
+`https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&individual_local_identifier=4264-84830852,3606-30668&sensor_type_id=653&attributes=individual_local_identifier,tag_local_identifier,timestamp,location_long,location_lat,visible,individual_taxon_canonical_name`
+
+Result
+
+```
+|individual_local_identifier |tag_local_identifier |timestamp               | location_long| location_lat|visible |individual_taxon_canonical_name |
+|:---------------------------|:--------------------|:-----------------------|-------------:|------------:|:-------|:-------------------------------|
+|"4264-84830852"             |"131"                |2008-05-31 13:30:02.001 |     -89.74021|    -1.372641|true    |Phoebastria irrorata            |
+|"4264-84830852"             |"131"                |2008-05-31 15:00:44.998 |     -89.74015|    -1.372894|true    |Phoebastria irrorata            |
+|"4264-84830852"             |"131"                |2008-05-31 16:30:39.998 |     -89.74014|    -1.372881|true    |Phoebastria irrorata            |
+|"4264-84830852"             |"131"                |2008-05-31 18:00:49.998 |     -89.74016|    -1.372891|true    |Phoebastria irrorata            |
+|"4264-84830852"             |"131"                |2008-05-31 19:30:18.998 |     -89.74013|    -1.372912|true    |Phoebastria irrorata            |
 ...
 ```
 
