@@ -1,6 +1,7 @@
 Movebank REST API: Description of download interface to build calls to the Movebank database
 
-Contents
+> Note: On 5 Oct 2023 we updated the API so that calls for species information will consistently return "individual_taxon_canonical_name" and not "taxon_canonical_name". Contact support@movebank.org with questions.
+
 - [Introduction](#introduction)
 - [Security, access permission and authentication](#security-data-access-and-authentication)
     - [Read and accept license terms using curl](#read-and-accept-license-terms-using-curl)
@@ -233,13 +234,13 @@ Result
 Result
 
 ```
-|comments        |death_comments |earliest_date_born |exact_date_of_birth |      id|latest_date_born |local_identifier |nick_name |ring_id |sex |taxon_canonical_name |        timestamp_start|          timestamp_end| number_of_events| number_of_deployments|sensor_type_ids |taxon_detail |
-|:---------------|:--------------|:------------------|:-------------------|-------:|:----------------|:----------------|:---------|:-------|:---|:--------------------|----------------------:|----------------------:|----------------:|---------------------:|:---------------|:------------|
-|                |               |                   |                    | 2911059|                 |4264-84830852    |          |        |    |Phoebastria irrorata |2008-06-23 16:28:31.999|2008-06-26 13:30:43.001|               48|                     1|GPS,Acceleration|             |
-|Nest stage: egg |               |                   |                    | 2911066|                 |2131-2131        |          |        |    |Phoebastria irrorata |2008-06-23 17:58:02.998|2008-07-11 10:32:29.001|              182|                     1|GPS,Acceleration|             |
-|Nest stage: egg |               |                   |                    | 2911075|                 |2368-2368        |          |        |    |Phoebastria irrorata |2008-06-23 17:58:01.998|2008-09-28 13:31:13.999|             1503|                     1|GPS,Acceleration|             |
-|Nest stage: egg |               |                   |                    | 2911074|                 |3275-30662       |          |        |    |Phoebastria irrorata |2008-06-23 19:28:30.999|2008-08-03 10:30:43.998|              647|                     1|GPS,Acceleration|             |
-|Nest stage: egg |               |                   |                    | 2911078|                 |3606-30668       |          |        |    |Phoebastria irrorata |2008-06-23 17:57:56.998|2008-06-25 15:00:14.000|               32|                     1|GPS,Acceleration|             |
+|comments        |death_comments |earliest_date_born |exact_date_of_birth |      id|latest_date_born |local_identifier |nick_name |ring_id |sex |individual_taxon_canonical_name |        timestamp_start|          timestamp_end| number_of_events| number_of_deployments|sensor_type_ids |taxon_detail |
+|:---------------|:--------------|:------------------|:-------------------|-------:|:----------------|:----------------|:---------|:-------|:---|:-------------------------------|----------------------:|----------------------:|----------------:|---------------------:|:---------------|:------------|
+|                |               |                   |                    | 2911059|                 |4264-84830852    |          |        |    |Phoebastria irrorata            |2008-06-23 16:28:31.999|2008-06-26 13:30:43.001|               48|                     1|GPS,Acceleration|             |
+|Nest stage: egg |               |                   |                    | 2911066|                 |2131-2131        |          |        |    |Phoebastria irrorata            |2008-06-23 17:58:02.998|2008-07-11 10:32:29.001|              182|                     1|GPS,Acceleration|             |
+|Nest stage: egg |               |                   |                    | 2911075|                 |2368-2368        |          |        |    |Phoebastria irrorata            |2008-06-23 17:58:01.998|2008-09-28 13:31:13.999|             1503|                     1|GPS,Acceleration|             |
+|Nest stage: egg |               |                   |                    | 2911074|                 |3275-30662       |          |        |    |Phoebastria irrorata            |2008-06-23 19:28:30.999|2008-08-03 10:30:43.998|              647|                     1|GPS,Acceleration|             |
+|Nest stage: egg |               |                   |                    | 2911078|                 |3606-30668       |          |        |    |Phoebastria irrorata            |2008-06-23 17:57:56.998|2008-06-25 15:00:14.000|               32|                     1|GPS,Acceleration|             |
 ...
 ```		
 
