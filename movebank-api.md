@@ -1,6 +1,6 @@
 Movebank REST API: Description of download interface to build calls to the Movebank database
 
-> Note: On 5 Oct 2023 we updated the API so that calls for species information will consistently return "individual_taxon_canonical_name" and not "taxon_canonical_name". Contact support@movebank.org with questions.
+> Note: We are currently rate limiting requests to one concurrent request per user. You will receive an error message if your requests exceed the limit. Following an upcoming server migration we will offer more options. To request an exemption to this request limit, for example for educational purposes, for for questions, please contact support@movebank.org.
 
 - [Introduction](#introduction)
 - [Security, access permission and authentication](#security-data-access-and-authentication)
