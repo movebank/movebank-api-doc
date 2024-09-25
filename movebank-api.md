@@ -557,7 +557,7 @@ If you request data that you do not have permission to see, you will get a messa
 ```
 
 ### Accessing the database from R
-The HTTP/CSV requests can be used to access Movebank data from R. [The R package `move`](http://cran.r-project.org/web/packages/move/index.html) provides flexible options for browsing and accessing data from Movebank in R using the REST API. 
+The HTTP/CSV requests can be used to access Movebank data from R. [The R package `move2`](http://cran.r-project.org/web/packages/move2/index.html) provides flexible options for browsing and accessing data from Movebank in R using the REST API. 
 
 ## Accessing the database using JSON/JavaScript requests
 The following are examples for how to access Movebank data using JSON requests. This is currently designed primarily to allow tracking data to be displayed on external maps using the Google Maps API (see below). You will need the relevant study ID number and sensor type description in the database to access data (see above).
