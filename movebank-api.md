@@ -1,6 +1,6 @@
 Movebank REST API: Description of download interface to build calls to the Movebank database
 
-> Note: We are currently rate limiting requests to one concurrent request per user. You will receive an error message if your requests exceed the limit. Following an upcoming server migration we will offer more options. To request an exemption to this request limit, for example for educational purposes, or for questions, please contact support@movebank.org.
+> Note: We are currently rate limiting requests to one concurrent request per IP and 20 concurrent requests total. A request remains active until the data transfer is complete. You will receive an error message if requests exceed the limit. Following an upcoming server migration we will offer more options. To request an exemption to this request limit, for example for educational purposes, or for questions, please contact support@movebank.org.
 
 - [Introduction](#introduction)
 - [Security, access permission and authentication](#security-data-access-and-authentication)
