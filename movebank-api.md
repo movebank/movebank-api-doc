@@ -29,6 +29,7 @@ Movebank REST API: Description of download interface to build calls to the Moveb
 		- [Get event data for an individual animal](#get-event-data-for-an-individual-animal)
 		- [Get event data for a specified time period](#get-event-data-for-a-specified-time-period)
 		- [Get GPS data for multiple individuals with select attributes](#get-gps-data-for-multiple-individuals-with-select-attributes)
+		- [Get event data for updates within a specified time period](#get-event-data-for-updates-within-a-specified-time-period)  
 	- [Get reduced event data](#get-reduced-event-data)
 		- [Get reduced data profile 1: Daily events](#get-reduced-data-profile-1-daily-events)
 		- [Get reduced data profile 2: Long-distance events](#get-reduced-data-profile-2-long-distance-events)
@@ -436,6 +437,23 @@ Result
 ```
 
 Timestamps should be provided in the format `yyyyMMddHHmmssSSS` (see [list of letter meanings](http://fmpp.sourceforge.net/datetimepattern.html)).
+
+#### Get event data for updates within a specified time period
+`https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=2911040&update_ts_start=20090101000000000&update_ts_end=20250101000000000`
+
+Result
+```
+|timestamp               | location_lat| location_long| individual_id|  tag_id|
+|:-----------------------|------------:|-------------:|-------------:|-------:|
+|2008-05-31 13:30:02.001 |    -1.372641|    -89.740214|       2911059| 2911107|
+|2008-05-31 15:00:44.998 |   -1.3728941|   -89.7401542|       2911059| 2911107|
+|2008-05-31 16:30:39.998 |   -1.3728809|   -89.7401401|       2911059| 2911107|
+|2008-05-31 18:00:49.998 |   -1.3728911|   -89.7401596|       2911059| 2911107|
+|2008-05-31 19:30:18.998 |   -1.3729121|    -89.740127|       2911059| 2911107|
+...
+```
+
+To request only events added or updated within a specified time period, define the start and/or end of this period using [update_ts](https://vocab.nerc.ac.uk/collection/MVB/current/MVB000204/). Timestamps should be provided in the format `yyyyMMddHHmmssSSS` (see [list of letter meanings](http://fmpp.sourceforge.net/datetimepattern.html)).
 
 ### Get reduced event data
 The 'reduced event' APIs allow calls to retrieve tracking data reduced according to 'reduction profiles'. (For REST API calls, additional attributes are provided for datasets < 800 records.) Data reduction can vastly reduce data transfer needs for many uses that do not require other sensor measurements or detailed movement data. Reduction profiles are defined by the following parameters for reducing spatial and temporal resolution:  
