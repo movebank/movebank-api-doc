@@ -10,11 +10,12 @@ Movebank REST API: Description of download interface to build calls to the Moveb
 	- [Get descriptions of entities in the database](#get-descriptions-of-entities-in-the-database)
 		- [Get a list of attributes](#get-a-list-of-attributes)
 		- [Get a list of sensor types](#get-a-list-of-sensor-types)
-	- [Get a list of studies](#get-a-list-of-studies)
-		- [Get a list of studies based on access permission](#get-a-list-of-studies-based-on-access-permission)
-		- [Get a list of studies for which the user is Data Manager or Collaborator](#get-a-list-of-studies-for-which-the-user-is-Data-Manager-or-Collaborator)
-		- [Get a list of studies for which the user can download data](#get-a-list-of-studies-for-which-the-user-can-download-data)
-		- [Get a list of studies for which the user can view data](#get-a-list-of-studies-for-which-the-user-can-view-data)
+	- [Get information about studies](#get-information-about-studies)
+		- [Get information about studies based on access permission](#get-information-about-studies-based-on-access-permission)
+		- [Get information about studies for which the user is Data Manager or Collaborator](#get-information-about-studies-for-which-the-user-is-Data-Manager-or-Collaborator)
+		- [Get information about studies for which the user can download data](#get-information-about-studies-for-which-the-user-can-download-data)
+		- [Get information about studies for which the user can view data](#get-information-about-studies-for-which-the-user-can-view-data)
+		- [Get information about studies with select study attributes](#get-information-about-studies-with-select-study-attributes)
 	- [Get descriptions of entities in a study](#get-descriptions-of-entities-in-a-study)
 		- [Get a description about a study](#get-a-description-about-a-study)
 		- [Get information about tags in a study](#get-information-about-tags-in-a-study)
@@ -147,7 +148,7 @@ Result
 
 From this you can see that the sensor type ID for GPS data is 653 and that the “accessory measurements” sensor does not include location information.
 
-#### Get a list of studies
+#### Get information about studies
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study`
 
 Result header
@@ -164,11 +165,11 @@ These results provide the study name (`study`), the study's database ID (`id`), 
 * If `timestamp_last_deployed_location` is in the future, this can indicate that tags have sent false timestamps through a live feed (i.e., the incorrect timestamp has been accurately received and imported from the tag) or that the owner mapped the timestamp format incorrectly when importing data files. See instructions for the owner to flag outliers [manually](https://www.movebank.org/cms/movebank-content/event-editor#manually_mark_outliers) or [using filters](https://www.movebank.org/cms/movebank-content/data-filters) and to [fix incorrectly mapped values](https://www.movebank.org/cms/movebank-content/upload-qc#fix_incorrectly_mapped_values).
 * The `principal_investigator_email` is only provided in cases that the PI is not assigned to a Movebank account. See [Security, access permission and authentication](#security-data-access-and-authentication) for more about contacting data owners.
 
-### Get a list of studies based on access permission
+### Get information about studies based on access permission
 You can filter the list of studies based on access, as set by the owner of each study in its [Permissions settings](https://www.movebank.org/cms/movebank-content/permissions-and-sharing). To determine your access rights, filter the list using `i_am_owner`, `i_can_see_data`, `i_have_download_access`,
 `i_am_collaborator`, `study_permission`, and/or `there_are_data_which_i_cannot_see`. Here 'see' refers only to your rights to view tracks on the Movebank [Tracking Data Map](https://www.movebank.org/cms/webapp?gwt_fragment=page=search_map). You might have permission to see only the study details, view some or all tracks but not download data, or view and download some or all data. Studies you do not have permission to see at all will not be included in the list. You can [contact data owners](https://www.movebank.org/cms/movebank-content/access-data#obtain_access_to_movebank_data) directly to propose data uses and request data sharing.
 
-#### Get a list of studies for which the user is Data Manager or Collaborator
+#### Get information about studies for which the user is Data Manager or Collaborator
 With both of these requests, the list of studies will be filtered to those for which the user is a Data Manager.
 
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_am_owner=true`
@@ -187,15 +188,20 @@ This list of studies will be filtered to those for which the user is a Data Mana
 
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&study_permission=data_manager,collaborator`
 
-#### Get a list of studies for which the user can download data
+#### Get information about studies for which the user can download data
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_have_download_access=true`
 
 This list of studies will be filtered to those for which the user has permission to download some or all data. This includes studies with publicly available data, studies for which the user is a Data Manager, and studies for which the user is a Collaborator with download access.
 
-#### Get a list of studies for which the user can view data
+#### Get information about studies for which the user can view data
 `https://www.movebank.org/movebank/service/direct-read?entity_type=study&i_can_see_data=true`
 
 The list of studies will be filtered to those for which the user has permission to view data on the [Tracking Data Map](https://www.movebank.org/cms/webapp?gwt_fragment=page=search_map).
+
+#### Get information about studies with select study attributes
+`https://www.movebank.org/movebank/service/direct-read?entity_type=study&attributes=id,name,citation,license_type,number_of_deployed_locations,taxon_ids,sensor_type_ids,contact_person_name`
+
+This list of studies will include only the specified study attributes.
 
 ### Get descriptions of entities in a study
 When you have a certain study of interest, you can access information contained in that study using the study’s Movebank ID (available in [the Study Details](https://www.movebank.org/cms/movebank-content/studies-page#study_details)). You can obtain information for the following entity types: `study`, `individual`, `tag`, `deployment`, `sensor`, `study_attribute` and `event`. The event entity contains actual sensor measurements stored in study attributes, and one or more sensors can be associated with each tag. The deployment, individual, and tag entities contain descriptive information about the animals, tags, and deployments (i.e., periods over which tags are attached to animals) in the study. In Movebank we refer to the latter information as [reference data](https://www.movebank.org/cms/movebank-content/mb-data-model#reference_data). Important information about understanding these data are provided [above](#understanding-data-from-movebank).
